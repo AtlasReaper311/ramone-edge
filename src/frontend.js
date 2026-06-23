@@ -31,7 +31,7 @@ export function renderFrontend(env) {
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&display=swap" />
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=_ramoneInitTurnstile&render=explicit" async defer></script>
 <style>
   :root {
     --bg: #0a0a0f;
@@ -463,35 +463,28 @@ export function renderFrontend(env) {
   let turnstileToken = null;
   let turnstileWidgetId = null;
 
-  window.onloadTurnstileCallback = function () {
-    turnstileWidgetId = window.turnstile.render("#turnstile", {
-      sitekey: ${JSON.stringify(turnstileKey)},
-      theme: "dark",
-      size: "flexible",
-      callback: function (token) {
-        turnstileToken = token;
-        updateSendState();
-      },
-      "expired-callback": function () {
-        turnstileToken = null;
-        updateSendState();
-      },
-      "error-callback": function () {
-        turnstileToken = null;
-        updateSendState();
-      },
-    });
-  };
 
-  // Turnstile loads async; poll briefly to render once it's ready.
-  (function waitForTurnstile(tries) {
-    if (window.turnstile && window.turnstile.render) {
-      window.onloadTurnstileCallback();
-      return;
-    }
-    if (tries <= 0) return;
-    setTimeout(function () { waitForTurnstile(tries - 1); }, 200);
-  })(50);
+    // Let Turnstile call us when ready via the onload param in the script URL
+    window._ramoneInitTurnstile = function() {
+      if (typeof window.turnstile === "undefined") return;
+      turnstileWidgetId = window.turnstile.render("#turnstile", {
+        sitekey: ${JSON.stringify(turnstileKey)},
+        theme: "dark",
+        size: "flexible",
+        callback: function(token) {
+          turnstileToken = token;
+          updateSendState();
+        },
+        "expired-callback": function() {
+          turnstileToken = null;
+          updateSendState();
+        },
+        "error-callback": function() {
+          turnstileToken = null;
+          updateSendState();
+        },
+      });
+    };
 
   // ----- Composer state ---------------------------------------------
   function updateCharCount() {

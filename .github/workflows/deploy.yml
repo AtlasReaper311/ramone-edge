@@ -7,10 +7,10 @@ on:
 
 jobs:
   deploy:
-    uses: AtlasReaper311/atlas-infra/.github/workflows/deploy-worker.yml@main
-    with:
-      worker_name: ramone-edge
-    secrets:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      NOTIFY_TOKEN: ${{ secrets.NOTIFY_TOKEN }}
+    runs-on: ubuntu-latest
+    name: Deploy Worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
