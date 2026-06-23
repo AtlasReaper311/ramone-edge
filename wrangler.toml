@@ -5,14 +5,14 @@ compatibility_flags = ["nodejs_compat"]
 
 # Public route on the apex zone.
 routes = [
-  { pattern = "ramone.atlas-systems.uk", custom_domain = true, zone_id = "REPLACE_WITH_ATLAS_SYSTEMS_UK_ZONE_ID" },
-  { pattern = "ramone.atlas-systems.uk/*", zone_id = "REPLACE_WITH_ATLAS_SYSTEMS_UK_ZONE_ID" },
+  { pattern = "ramone.atlas-systems.uk", custom_domain = true, zone_id = "8ba6350a78c988447c111048b125f917" },
+  { pattern = "ramone.atlas-systems.uk/*", zone_id = "8ba6350a78c988447c111048b125f917" },
 ]
 
 # KV namespace for rate-limit counters. Single namespace, namespaced keys.
 [[kv_namespaces]]
 binding = "RL"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "2c05e40ce00946c0aa4057513c3fec40"
 
 # Static (non-secret) configuration. Secrets live in `wrangler secret put`.
 [vars]
@@ -22,7 +22,7 @@ RATE_LIMIT_PER_HOUR = "10"
 RATE_LIMIT_PER_DAY_GLOBAL = "500"
 MAX_PROMPT_CHARS = "2000"
 WAKE_CHECK_CACHE_SECONDS = "30"
-TURNSTILE_SITE_KEY = "REPLACE_WITH_TURNSTILE_SITE_KEY"
+TURNSTILE_SITE_KEY = "0x4AAAAAADpZl2kZWXDpcitz"
 NOTIFY_URL = "https://api.atlas-systems.uk/notify"
 NOTIFY_SIGNAL_CLASS = "ramone"
 
