@@ -21,19 +21,47 @@ export async function handleAsk(request, env, ctx) {
   } catch {
     return reject(request, env, ctx, 400, "invalid_json", ipHash, startedAt, 0);
   }
-  const question = typeof body.question === "string" ? body.question.trim() : "";
+  const question =
+    typeof body.question === "string" ? body.question.trim() : "";
   const maxChars = parseInt(env.MAX_PROMPT_CHARS, 10) || 2000;
   if (!question) {
-    return reject(request, env, ctx, 400, "empty_question", ipHash, startedAt, 0);
+    return reject(
+      request,
+      env,
+      ctx,
+      400,
+      "empty_question",
+      ipHash,
+      startedAt,
+      0,
+    );
   }
   if (question.length > maxChars) {
-    return reject(request, env, ctx, 413, "prompt_too_long", ipHash, startedAt, question.length);
+    return reject(
+      request,
+      env,
+      ctx,
+      413,
+      "prompt_too_long",
+      ipHash,
+      startedAt,
+      question.length,
+    );
   }
 
   // --- 2. Rate limits -------------------------------------------------
   const rl = await checkRateLimits(ip, env);
   if (!rl.ok) {
-    const res = reject(request, env, ctx, 429, rl.reason, ipHash, startedAt, question.length);
+    const res = reject(
+      request,
+      env,
+      ctx,
+      429,
+      rl.reason,
+      ipHash,
+      startedAt,
+      question.length,
+    );
     res.headers.set("retry-after", String(rl.retryAfterSeconds));
     return res;
   }
@@ -42,16 +70,24 @@ export async function handleAsk(request, env, ctx) {
   const awake = await probeAwake(env);
   if (!awake) {
     ctx.waitUntil(
-      notify(env, buildAskEvent({
-        ipHash, promptChars: question.length,
-        latencyMs: Date.now() - startedAt,
-        status: 503, reason: "asleep", sources: 0, answerChars: 0,
-      })),
+      notify(
+        env,
+        buildAskEvent({
+          ipHash,
+          promptChars: question.length,
+          latencyMs: Date.now() - startedAt,
+          status: 503,
+          reason: "asleep",
+          sources: 0,
+          answerChars: 0,
+        }),
+      ),
     );
     return new Response(
       JSON.stringify({
         error: "asleep",
-        message: "Ramone runs on a single GPU at SPECULAR-CORE; that machine is currently powered down. Try again later or reach me at atlas@atlas-systems.uk.",
+        message:
+          "Ramone runs on a single GPU at SPECULAR-CORE; that machine is currently powered down. Try again later or reach me at atlas@atlas-systems.uk.",
       }),
       {
         status: 503,
@@ -78,28 +114,53 @@ export async function handleAsk(request, env, ctx) {
     });
   } catch (err) {
     console.error("upstream fetch error:", err);
-    return reject(request, env, ctx, 502, "upstream_unreachable", ipHash, startedAt, question.length);
+    return reject(
+      request,
+      env,
+      ctx,
+      502,
+      "upstream_unreachable",
+      ipHash,
+      startedAt,
+      question.length,
+    );
   }
 
   if (!upstream.ok || !upstream.body) {
-    return reject(request, env, ctx, 502, `upstream_status_${upstream.status}`, ipHash, startedAt, question.length);
+    return reject(
+      request,
+      env,
+      ctx,
+      502,
+      `upstream_status_${upstream.status}`,
+      ipHash,
+      startedAt,
+      question.length,
+    );
   }
 
   // --- 5. Tee, count, notify ------------------------------------------
   const counters = { answerChars: 0, sources: 0 };
   const teed = teeAndCount(upstream.body, counters);
 
+  // Increment rate-limit counters immediately — don't wait for stream.
+  ctx.waitUntil(incrementCounters(env, rl.hourKey, rl.dayKey));
+
+  // Fire notify immediately with what we know now.
+  // We won't have final token/source counts but latency and status are correct.
   ctx.waitUntil(
-    (async () => {
-      await incrementCounters(env, rl.hourKey, rl.dayKey);
-      await counters.donePromise;
-      await notify(env, buildAskEvent({
-        ipHash, promptChars: question.length,
+    notify(
+      env,
+      buildAskEvent({
+        ipHash,
+        promptChars: question.length,
         latencyMs: Date.now() - startedAt,
-        status: 200, reason: null,
-        sources: counters.sources, answerChars: counters.answerChars,
-      }));
-    })(),
+        status: 200,
+        reason: null,
+        sources: 0,
+        answerChars: 0,
+      }),
+    ),
   );
 
   return new Response(teed, {
@@ -113,13 +174,29 @@ export async function handleAsk(request, env, ctx) {
   });
 }
 
-function reject(request, env, ctx, status, reason, ipHash, startedAt, promptChars) {
+function reject(
+  request,
+  env,
+  ctx,
+  status,
+  reason,
+  ipHash,
+  startedAt,
+  promptChars,
+) {
   ctx.waitUntil(
-    notify(env, buildAskEvent({
-      ipHash, promptChars,
-      latencyMs: Date.now() - startedAt,
-      status, reason, sources: 0, answerChars: 0,
-    })),
+    notify(
+      env,
+      buildAskEvent({
+        ipHash,
+        promptChars,
+        latencyMs: Date.now() - startedAt,
+        status,
+        reason,
+        sources: 0,
+        answerChars: 0,
+      }),
+    ),
   );
   return new Response(JSON.stringify({ error: reason }), {
     status,
@@ -151,7 +228,9 @@ function teeAndCount(upstream, counters) {
   const decoder = new TextDecoder();
   let buffer = "";
   let resolveDone;
-  counters.donePromise = new Promise((r) => { resolveDone = r; });
+  counters.donePromise = new Promise((r) => {
+    resolveDone = r;
+  });
 
   return upstream.pipeThrough(
     new TransformStream({
@@ -173,11 +252,15 @@ function teeAndCount(upstream, counters) {
               } else if (evt.type === "sources" && Array.isArray(evt.sources)) {
                 counters.sources = evt.sources.length;
               }
-            } catch { /* non-JSON SSE line, skip */ }
+            } catch {
+              /* non-JSON SSE line, skip */
+            }
           }
         }
       },
-      flush() { resolveDone(); },
+      flush() {
+        resolveDone();
+      },
     }),
   );
 }
