@@ -1,37 +1,55 @@
 /**
- * atlas-notify dispatch.
- *
- * Fires a single POST per Q&A to the central event bus. We use the
- * `persist_only: true` pattern documented in atlas-notify: it writes
- * into the ring buffer (so the Lab page Failure log can see 5xx events
- * and the new #ramone-log channel has history) without forcing a Discord
- * post on every successful question. A separate channel still receives
- * Discord-formatted summaries; that routing happens server-side in
- * atlas-notify based on signal_class.
- *
- * Called from `ctx.waitUntil(...)` so a slow or down atlas-notify never
- * blocks the user's response.
+ * atlas-notify dispatch for ramone-edge.
+ * Uses a Service Binding (env.ATLAS_NOTIFY) to call atlas-notify
+ * directly inside Cloudflare's network — no public internet hop.
  */
 
 export async function notify(env, payload) {
-  if (!env.NOTIFY_URL || !env.NOTIFY_TOKEN) {
+  if (!env.NOTIFY_TOKEN) {
+    console.error("notify: NOTIFY_TOKEN not set");
     return;
   }
+
+  const signalClass = env.NOTIFY_SIGNAL_CLASS || "ramone";
+  const body = {
+    signal_class: signalClass,
+    persist_only: payload.level === "info",
+    title: payload.title,
+    level: payload.level,
+    message: payload.message,
+    fields: payload.fields,
+    reason: payload.reason,
+  };
+
+  // Remove undefined keys so the JSON is clean
+  Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
+
+  const requestInit = {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${env.NOTIFY_TOKEN}`,
+    },
+    body: JSON.stringify(body),
+  };
+
   try {
-    await fetch(env.NOTIFY_URL, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${env.NOTIFY_TOKEN}`,
-      },
-      body: JSON.stringify({
-        signal_class: env.NOTIFY_SIGNAL_CLASS || "ramone",
-        persist_only: payload.level === "info",
-        ...payload,
-      }),
-    });
+    let res;
+    if (env.ATLAS_NOTIFY) {
+      // Service binding: direct Worker-to-Worker call, no public internet
+      res = await env.ATLAS_NOTIFY.fetch(
+        "https://atlas-notify/notify",
+        requestInit,
+      );
+    } else if (env.NOTIFY_URL) {
+      // Fallback to URL (for local dev)
+      res = await fetch(env.NOTIFY_URL, requestInit);
+    } else {
+      console.error("notify: no ATLAS_NOTIFY binding or NOTIFY_URL");
+      return;
+    }
+    console.log("notify: status", res.status, "signal_class:", signalClass);
   } catch (err) {
-    // Logging is best-effort.
     console.error("notify failed:", err);
   }
 }
@@ -39,6 +57,7 @@ export async function notify(env, payload) {
 export function buildAskEvent({
   ipHash,
   promptChars,
+  promptText,
   latencyMs,
   status,
   reason,
@@ -63,11 +82,12 @@ export function buildAskEvent({
     fields: {
       ip_hash: ipHash,
       prompt_chars: promptChars,
+      prompt: promptText || undefined,
       answer_chars: answerChars,
       latency_ms: latencyMs,
       sources_used: sources,
       status,
-      reason: reason || null,
+      reason: reason || undefined,
     },
   };
 }

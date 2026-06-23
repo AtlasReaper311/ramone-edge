@@ -154,6 +154,7 @@ export async function handleAsk(request, env, ctx) {
       buildAskEvent({
         ipHash,
         promptChars: question.length,
+        promptText: question,
         latencyMs: Date.now() - startedAt,
         status: 200,
         reason: null,
