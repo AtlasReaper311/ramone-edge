@@ -18,7 +18,7 @@ id = "2c05e40ce00946c0aa4057513c3fec40"
 [vars]
 TUNNEL_HOST = "ramone-tunnel.atlas-systems.uk"
 ALLOWED_ORIGINS = "https://atlas-systems.uk,https://www.atlas-systems.uk,https://ramone.atlas-systems.uk"
-RATE_LIMIT_PER_HOUR = "10"
+RATE_LIMIT_PER_HOUR = "50"
 RATE_LIMIT_PER_DAY_GLOBAL = "500"
 MAX_PROMPT_CHARS = "2000"
 WAKE_CHECK_CACHE_SECONDS = "30"
