@@ -1,8 +1,13 @@
 /**
  * POST /ask
  *
- * Pipeline: parse → rate limit → wake probe → proxy → SSE tee → notify
+ * Pipeline: parse → rate limit → wake probe (KV-cached) → proxy → SSE tee → notify
  * Turnstile removed: KV rate limits + UPSTREAM_SECRET are the protection layer.
+ *
+ * Fixes applied:
+ *   1. Notify fires after stream completes so real answerChars/sources are reported.
+ *   2. probeAwake reads the KV cache written by status.js before doing a live probe.
+ *   3. Dead Turnstile import removed.
  */
 
 import { checkRateLimits, incrementCounters } from "./ratelimit.js";
@@ -66,7 +71,7 @@ export async function handleAsk(request, env, ctx) {
     return res;
   }
 
-  // --- 3. Wake probe --------------------------------------------------
+  // --- 3. Wake probe (reads KV cache written by /status) --------------
   const awake = await probeAwake(env);
   if (!awake) {
     ctx.waitUntil(
@@ -75,6 +80,7 @@ export async function handleAsk(request, env, ctx) {
         buildAskEvent({
           ipHash,
           promptChars: question.length,
+          promptText: question,
           latencyMs: Date.now() - startedAt,
           status: 503,
           reason: "asleep",
@@ -139,28 +145,31 @@ export async function handleAsk(request, env, ctx) {
     );
   }
 
-  // --- 5. Tee, count, notify ------------------------------------------
+  // --- 5. Tee, count, notify after stream completes ------------------
   const counters = { answerChars: 0, sources: 0 };
   const teed = teeAndCount(upstream.body, counters);
 
-  // Increment rate-limit counters immediately — don't wait for stream.
+  // Rate-limit counters: increment immediately, don't block the response.
   ctx.waitUntil(incrementCounters(env, rl.hourKey, rl.dayKey));
 
-  // Fire notify immediately with what we know now.
-  // We won't have final token/source counts but latency and status are correct.
+  // Notify: defer until donePromise resolves so we report real counts.
+  // The service binding (env.ATLAS_NOTIFY) means this is a direct
+  // Worker-to-Worker call — no public internet round trip, no 522 risk.
   ctx.waitUntil(
-    notify(
-      env,
-      buildAskEvent({
-        ipHash,
-        promptChars: question.length,
-        promptText: question,
-        latencyMs: Date.now() - startedAt,
-        status: 200,
-        reason: null,
-        sources: 0,
-        answerChars: 0,
-      }),
+    counters.donePromise.then(() =>
+      notify(
+        env,
+        buildAskEvent({
+          ipHash,
+          promptChars: question.length,
+          promptText: question,
+          latencyMs: Date.now() - startedAt,
+          status: 200,
+          reason: null,
+          sources: counters.sources,
+          answerChars: counters.answerChars,
+        }),
+      ),
     ),
   );
 
@@ -208,7 +217,20 @@ function reject(
   });
 }
 
+/**
+ * Check the KV cache written by status.js before doing a live tunnel probe.
+ * This avoids a 2s round trip on every /ask when /status was hit recently.
+ */
 async function probeAwake(env) {
+  // Read the cache that status.js maintains under the same key.
+  const cached = await env.RL.get("ramone:wake_state", "json");
+  const cacheMs = (parseInt(env.WAKE_CHECK_CACHE_SECONDS, 10) || 30) * 1000;
+  if (cached && cached.checkedAt > Date.now() - cacheMs) {
+    return !!cached.awake;
+  }
+
+  // Cache miss — do a live probe and write the result back so the
+  // next request (and /status) can reuse it.
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 2000);
   try {
@@ -216,6 +238,11 @@ async function probeAwake(env) {
       method: "GET",
       headers: { "x-atlas-secret": env.UPSTREAM_SECRET || "" },
       signal: controller.signal,
+    });
+    const fresh = { awake: res.ok, checkedAt: Date.now() };
+    // Best-effort write — don't block on it.
+    env.RL.put("ramone:wake_state", JSON.stringify(fresh), {
+      expirationTtl: 90,
     });
     return res.ok;
   } catch {
@@ -225,6 +252,13 @@ async function probeAwake(env) {
   }
 }
 
+/**
+ * Wrap the SSE stream in a TransformStream that:
+ *   - passes bytes through to the client unchanged
+ *   - counts token chars and source events in-place
+ *   - resolves counters.donePromise on flush so the deferred notify
+ *     fires with accurate counts
+ */
 function teeAndCount(upstream, counters) {
   const decoder = new TextDecoder();
   let buffer = "";

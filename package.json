@@ -10,14 +10,14 @@
     "test:watch": "vitest",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
-    "check": "node --check src/index.js && node --check src/ask.js && node --check src/cors.js && node --check src/frontend.js && node --check src/notify.js && node --check src/ratelimit.js && node --check src/status.js && node --check src/turnstile.js"
+    "check": "node --check src/index.js && node --check src/ask.js && node --check src/cors.js && node --check src/frontend.js && node --check src/notify.js && node --check src/ratelimit.js && node --check src/status.js"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.0",
     "eslint": "^9.16.0",
     "globals": "^15.13.0",
     "vitest": "^2.1.8",
-    "wrangler": "^3.95.0"
+    "wrangler": "^3.114.17"
   },
   "engines": {
     "node": ">=22"
