@@ -22,8 +22,6 @@ RATE_LIMIT_PER_HOUR = "50"
 RATE_LIMIT_PER_DAY_GLOBAL = "500"
 MAX_PROMPT_CHARS = "2000"
 WAKE_CHECK_CACHE_SECONDS = "30"
-TURNSTILE_SITE_KEY = "0x4AAAAAADpZl2kZWXDpcitz"
-NOTIFY_URL = "https://api.atlas-systems.uk/notify"
 NOTIFY_SIGNAL_CLASS = "ramone"
 
 # Observability: tail logs and source maps.
