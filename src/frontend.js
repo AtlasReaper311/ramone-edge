@@ -231,6 +231,7 @@ export function renderFrontend(_env) {
   var suggestions = document.getElementById("suggestions");
   var MAX = 2000;
   var inFlight = false;
+  var fallbackSessionId = null;
 
   function makeRamoneSessionId() {
     var c = window.crypto;
@@ -259,15 +260,21 @@ export function renderFrontend(_env) {
   function getRamoneSessionId() {
     var KEY = "ramone:session_id";
     var stored = null;
-    try { stored = localStorage.getItem(KEY); } catch (_) { /* storage disabled */ }
-    if (stored) return stored;
+    try { stored = window.localStorage && window.localStorage.getItem(KEY); } catch (_) { /* storage disabled */ }
+    if (stored) {
+      fallbackSessionId = stored;
+      return stored;
+    }
+    if (fallbackSessionId) return fallbackSessionId;
     var fresh = makeRamoneSessionId();
-    try { localStorage.setItem(KEY, fresh); } catch (_) { /* best-effort only */ }
+    fallbackSessionId = fresh;
+    try { window.localStorage && window.localStorage.setItem(KEY, fresh); } catch (_) { /* best-effort only */ }
     return fresh;
   }
 
   function resetRamoneSession() {
-    try { localStorage.removeItem("ramone:session_id"); } catch (_) { /* no-op */ }
+    fallbackSessionId = null;
+    try { window.localStorage && window.localStorage.removeItem("ramone:session_id"); } catch (_) { /* no-op */ }
     location.reload();
   }
 
