@@ -3,7 +3,7 @@
  * Turnstile removed — KV rate limits + UPSTREAM_SECRET are the protection layer.
  */
 
-export function renderFrontend(env) {
+export function renderFrontend(_env) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -224,6 +224,40 @@ export function renderFrontend(env) {
   var MAX = 2000;
   var inFlight = false;
 
+  function makeRamoneSessionId() {
+    var c = window.crypto;
+    if (c && typeof c.randomUUID === "function") return c.randomUUID();
+
+    var bytes = new Uint8Array(16);
+    if (c && typeof c.getRandomValues === "function") {
+      c.getRandomValues(bytes);
+    } else {
+      for (var i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    }
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    var hex = [];
+    for (var j = 0; j < bytes.length; j++) hex.push(bytes[j].toString(16).padStart(2, "0"));
+    return (
+      hex.slice(0, 4).join("") + "-" +
+      hex.slice(4, 6).join("") + "-" +
+      hex.slice(6, 8).join("") + "-" +
+      hex.slice(8, 10).join("") + "-" +
+      hex.slice(10, 16).join("")
+    );
+  }
+
+  function getRamoneSessionId() {
+    var KEY = "ramone:session_id";
+    var stored = null;
+    try { stored = localStorage.getItem(KEY); } catch (_) { /* storage disabled */ }
+    if (stored) return stored;
+    var fresh = makeRamoneSessionId();
+    try { localStorage.setItem(KEY, fresh); } catch (_) { /* best-effort only */ }
+    return fresh;
+  }
+
   function updateCharCount() {
     var n = input.value.length;
     charCount.textContent = n + " / " + MAX;
@@ -297,7 +331,7 @@ export function renderFrontend(env) {
       var res = await fetch("/ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question: question }),
+        body: JSON.stringify({ question: question, session_id: getRamoneSessionId() }),
       });
 
       if (res.status === 503) {

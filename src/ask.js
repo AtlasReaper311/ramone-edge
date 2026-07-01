@@ -8,6 +8,11 @@
  *   1. Notify fires after stream completes so real answerChars/sources are reported.
  *   2. probeAwake reads the KV cache written by status.js before doing a live probe.
  *   3. Dead Turnstile import removed.
+ *
+ * Conversation memory:
+ *   A client-generated session_id, if present and well-formed, is
+ *   forwarded to the upstream /ask/stream call unchanged. This Worker
+ *   never reads or writes memory itself.
  */
 
 import { checkRateLimits, incrementCounters } from "./ratelimit.js";
@@ -53,6 +58,8 @@ export async function handleAsk(request, env, ctx) {
       question.length,
     );
   }
+
+  const sessionId = isValidSessionId(body.session_id) ? body.session_id : null;
 
   // --- 2. Rate limits -------------------------------------------------
   const rl = await checkRateLimits(ip, env);
@@ -116,7 +123,7 @@ export async function handleAsk(request, env, ctx) {
         "x-atlas-secret": env.UPSTREAM_SECRET || "",
         "x-request-id": crypto.randomUUID(),
       },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, session_id: sessionId }),
     });
   } catch (err) {
     console.error("upstream fetch error:", err);
@@ -215,6 +222,20 @@ function reject(
       ...corsHeaders(request, env),
     },
   });
+}
+
+/**
+ * UUID v4 check, mirrored from the Python-side validator in
+ * ollama-rag-kit's app/memory.py. The Worker only decides whether a
+ * client-supplied session_id is well-formed enough to forward.
+ */
+export function isValidSessionId(raw) {
+  return (
+    typeof raw === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      raw,
+    )
+  );
 }
 
 /**
