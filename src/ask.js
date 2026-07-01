@@ -73,6 +73,7 @@ export async function handleAsk(request, env, ctx) {
       ipHash,
       startedAt,
       question.length,
+      !!sessionId,
     );
     res.headers.set("retry-after", String(rl.retryAfterSeconds));
     return res;
@@ -93,6 +94,7 @@ export async function handleAsk(request, env, ctx) {
           reason: "asleep",
           sources: 0,
           answerChars: 0,
+          hasMemory: !!sessionId,
         }),
       ),
     );
@@ -136,6 +138,7 @@ export async function handleAsk(request, env, ctx) {
       ipHash,
       startedAt,
       question.length,
+      !!sessionId,
     );
   }
 
@@ -149,6 +152,7 @@ export async function handleAsk(request, env, ctx) {
       ipHash,
       startedAt,
       question.length,
+      !!sessionId,
     );
   }
 
@@ -175,6 +179,7 @@ export async function handleAsk(request, env, ctx) {
           reason: null,
           sources: counters.sources,
           answerChars: counters.answerChars,
+          hasMemory: !!sessionId,
         }),
       ),
     ),
@@ -200,6 +205,7 @@ function reject(
   ipHash,
   startedAt,
   promptChars,
+  hasMemory = false,
 ) {
   ctx.waitUntil(
     notify(
@@ -212,6 +218,7 @@ function reject(
         reason,
         sources: 0,
         answerChars: 0,
+        hasMemory,
       }),
     ),
   );

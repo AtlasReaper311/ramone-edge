@@ -17,7 +17,23 @@ describe("buildAskEvent", () => {
     expect(e.fields.prompt_chars).toBe(42);
     expect(e.fields.answer_chars).toBe(512);
     expect(e.fields.sources_used).toBe(3);
+    expect(e.fields.has_memory).toBe(false);
     expect(e.fields.latency_ms).toBe(1340);
+  });
+
+  it("records whether a valid memory session was present", () => {
+    const e = buildAskEvent({
+      ipHash: "abc123",
+      promptChars: 42,
+      latencyMs: 1340,
+      status: 200,
+      reason: null,
+      sources: 3,
+      answerChars: 512,
+      hasMemory: true,
+    });
+    expect(e.fields.has_memory).toBe(true);
+    expect(JSON.stringify(e)).not.toContain("110e8400");
   });
 
   it("classifies 4xx as warning", () => {

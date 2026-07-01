@@ -63,6 +63,7 @@ export function buildAskEvent({
   reason,
   sources,
   answerChars,
+  hasMemory = false,
 }) {
   return {
     level: status >= 500 ? "failure" : status >= 400 ? "warning" : "info",
@@ -86,6 +87,7 @@ export function buildAskEvent({
       answer_chars: answerChars,
       latency_ms: latencyMs,
       sources_used: sources,
+      has_memory: !!hasMemory,
       status,
       reason: reason || undefined,
     },

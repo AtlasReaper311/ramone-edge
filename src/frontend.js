@@ -135,6 +135,12 @@ export function renderFrontend(_env) {
   .char-count { color: var(--text-faint); font-size: 11px; margin-right: auto; }
   .char-count.warn { color: var(--accent); }
   .char-count.over { color: var(--status-down); }
+  button.reset-session {
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+    padding: 8px 12px; font-family: inherit; font-size: 13px;
+    cursor: pointer; border-radius: 2px; transition: border-color 0.15s, color 0.15s;
+  }
+  button.reset-session:hover { border-color: var(--accent); color: var(--text); }
   button.transmit {
     background: var(--accent); color: var(--bg); border: none;
     padding: 8px 18px; font-family: inherit; font-size: 13px;
@@ -194,6 +200,7 @@ export function renderFrontend(_env) {
     ></textarea>
     <div class="composer-actions">
       <span class="char-count" id="char-count">0 / 2000</span>
+      <button class="reset-session" id="reset-session" type="button">new conversation</button>
       <button class="transmit" id="send" type="button" disabled>transmit</button>
     </div>
   </div>
@@ -218,6 +225,7 @@ export function renderFrontend(_env) {
   var logLabel  = document.getElementById("log-label");
   var input     = document.getElementById("input");
   var sendBtn   = document.getElementById("send");
+  var resetBtn  = document.getElementById("reset-session");
   var charCount = document.getElementById("char-count");
   var composer  = document.getElementById("composer");
   var suggestions = document.getElementById("suggestions");
@@ -258,6 +266,11 @@ export function renderFrontend(_env) {
     return fresh;
   }
 
+  function resetRamoneSession() {
+    try { localStorage.removeItem("ramone:session_id"); } catch (_) { /* no-op */ }
+    location.reload();
+  }
+
   function updateCharCount() {
     var n = input.value.length;
     charCount.textContent = n + " / " + MAX;
@@ -288,6 +301,7 @@ export function renderFrontend(_env) {
     updateCharCount(); autosize(); updateSendState(); input.focus();
   });
   sendBtn.addEventListener("click", transmit);
+  resetBtn.addEventListener("click", resetRamoneSession);
 
   var lastAwake = null;
   function setMachineState(awake) {
