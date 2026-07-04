@@ -19,14 +19,30 @@ import { handleAsk } from "./ask.js";
 import { handleStatus } from "./status.js";
 import { renderFrontend } from "./frontend.js";
 import { corsHeaders, handlePreflight } from "./cors.js";
+import { handleMeta } from "./_meta.js";
+
+const META = {
+  name: "ramone-edge",
+  description: "Public edge for the Ramone local-AI tunnel with Turnstile, rate limits, and SSE responses",
+  version: "1.0.0",
+  endpoints: [
+    { method: "GET", path: "/", description: "Standalone Ramone interface" },
+    { method: "GET", path: "/status", description: "Cached awake/asleep probe for live indicators" },
+    { method: "POST", path: "/ask", description: "Turnstile-protected Q&A proxy streaming SSE from the local stack" },
+    { method: "GET", path: "/_meta", description: "This document" },
+  ],
+  source: "https://github.com/AtlasReaper311/ramone-edge",
+};
 
 export default {
   async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    const meta = handleMeta(url, META);
+    if (meta) return meta;
+
     if (request.method === "OPTIONS") {
       return handlePreflight(request, env);
     }
-
-    const url = new URL(request.url);
 
     try {
       if (request.method === "GET" && url.pathname === "/") {
