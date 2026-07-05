@@ -11,6 +11,49 @@ jobs:
     name: Deploy Worker
     steps:
       - uses: actions/checkout@v4
-      - uses: cloudflare/wrangler-action@v3
+      - id: deploy_step
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Persist deploy event to Lab
+        if: always()
+        continue-on-error: true
+        env:
+          NOTIFY_TOKEN: ${{ secrets.NOTIFY_TOKEN }}
+          DEPLOY_OUTCOME: ${{ steps.deploy_step.outcome }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${NOTIFY_TOKEN:-}" ]; then
+            echo "NOTIFY_TOKEN not set, skipping Lab persist"
+            exit 0
+          fi
+
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          if [ "$DEPLOY_OUTCOME" = "success" ]; then
+            LEVEL="success"
+            TITLE="Deployed: ramone-edge"
+            MSG="Deployed to production [${SHORT_SHA}]"
+          elif [ "$DEPLOY_OUTCOME" = "cancelled" ]; then
+            LEVEL="warning"
+            TITLE="Cancelled: ramone-edge"
+            MSG="Pipeline cancelled [${SHORT_SHA}]"
+          else
+            LEVEL="failure"
+            TITLE="Deploy failed: ramone-edge"
+            MSG="Worker deploy failed [${SHORT_SHA}]"
+          fi
+
+          curl -sS -f -X POST "https://api.atlas-systems.uk/notify" \
+            -H "Authorization: Bearer ${NOTIFY_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data "$(jq -n \
+              --arg source "alert" \
+              --arg level "$LEVEL" \
+              --arg title "$TITLE" \
+              --arg message "$MSG" \
+              --arg url "$RUN_URL" \
+              '{source:$source, level:$level, title:$title, message:$message, url:$url, persist_only:true}')"
