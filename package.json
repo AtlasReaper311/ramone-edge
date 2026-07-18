@@ -17,7 +17,7 @@
     "eslint": "^9.16.0",
     "globals": "^15.13.0",
     "vitest": "^4.1.10",
-    "wrangler": "^3.114.17"
+    "wrangler": "^4.112.0"
   },
   "engines": {
     "node": ">=22"
