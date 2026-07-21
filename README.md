@@ -12,6 +12,7 @@
 ```
 
 ![Cloudflare Workers](https://img.shields.io/badge/runtime-cloudflare%20workers-f5a623?style=flat-square&labelColor=0a0a0f)
+![Rate limits](https://img.shields.io/badge/rate%20limits-workers%20kv-4ade80?style=flat-square&labelColor=0a0a0f)
 ![SSE](https://img.shields.io/badge/transport-sse-aaa9a0?style=flat-square&labelColor=0a0a0f)
 ![Cost](https://img.shields.io/badge/cost-%C2%A30-aaa9a0?style=flat-square&labelColor=0a0a0f)
 
@@ -85,3 +86,15 @@ npm test
 ```
 
 Coverage focuses on the security-critical and contract-critical paths: CORS origin enforcement, rate-limit math, and the atlas-notify event shape. The upstream proxy and SSE pipe are exercised end-to-end against `wrangler dev` in CI rather than mocked.
+
+## How it fits into Atlas Systems
+
+`ramone-edge` is the bounded public gateway between the Atlas Systems web surface and local Ramone services. The edge layer owns browser-facing validation, rate limiting, wake-state checks, and streaming transport while local inference stays behind the tunnel.
+
+It also reports operational failures through [`atlas-notify`](https://github.com/AtlasReaper311/atlas-notify) and follows the same fail-closed public/private boundary used by the wider estate.
+
+The transferable principle is to put public trust boundaries at the edge and keep the local service focused on the work only it can perform.
+
+---
+
+Part of [atlas-systems.uk](https://atlas-systems.uk)
