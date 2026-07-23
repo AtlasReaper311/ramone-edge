@@ -118,8 +118,17 @@ jobs:
           test "${{ github.event.pull_request.head.ref }}" = "feat/estate-shell-v1"
           test "${PREVIEW_ALIAS}" != "production"
           test "${PREVIEW_ALIAS}" != "main"
-          ! grep -R "wrangler deploy" .github/workflows/interface-preview.yml
-          ! grep -R "versions deploy" .github/workflows/interface-preview.yml
+          python3 - <<'PY'
+          from pathlib import Path
+
+          workflow = Path(".github/workflows/interface-preview.yml").read_text(encoding="utf-8")
+          for line in workflow.splitlines():
+              command = line.strip()
+              if command.startswith("npx wrangler deploy") and "--dry-run" not in command:
+                  raise SystemExit(f"production deploy command found: {command}")
+              if command.startswith("npx wrangler versions deploy"):
+                  raise SystemExit(f"version deployment command found: {command}")
+          PY
 
       - name: Upload non-production Worker version
         id: deploy
