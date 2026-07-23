@@ -2,6 +2,7 @@ name = "ramone-edge"
 main = "src/index.js"
 compatibility_date = "2025-06-01"
 compatibility_flags = ["nodejs_compat"]
+preview_urls = true
 
 # Public route on the apex zone.
 routes = [

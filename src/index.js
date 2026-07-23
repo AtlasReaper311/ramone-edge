@@ -18,6 +18,7 @@
 import { handleAsk } from "./ask.js";
 import { handleStatus } from "./status.js";
 import { renderFrontend } from "./frontend.js";
+import { handleBrowserIcon } from "./browser-icons.js";
 import { corsHeaders, handlePreflight } from "./cors.js";
 import { handleMeta } from "./_meta.js";
 
@@ -37,6 +38,12 @@ const META = {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    if (request.method === "GET") {
+      const browserIcon = handleBrowserIcon(url.pathname);
+      if (browserIcon) return browserIcon;
+    }
+
     const meta = handleMeta(url, META);
     if (meta) return meta;
 
