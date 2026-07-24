@@ -61,6 +61,37 @@ npm run test
 npm run dev         # wrangler dev with --remote
 ```
 
+## Public Interface V2
+
+The browser surface is a polished chat product expressed through the Atlas
+terminal/console visual language. It introduces Ramone personally, retains the
+“Ask my infrastructure.” command, explains the public knowledge boundary, and
+keeps the full conversation interface visible when SPECULAR-CORE is offline.
+
+The accepted Atlas Interface Kit is vendored under
+`assets/interface/v0.1.1/`, verified against its manifest, and embedded into
+the Worker response. There is no browser-time dependency on the kit repository
+or another service.
+
+```bash
+npm run verify:interface  # verify the pinned bundle and its fingerprints
+npm run build:interface   # deterministically regenerate the embedded module
+```
+
+Pull requests that touch the interface publish an isolated workers.dev preview.
+The preview has no production route, service binding, KV binding, schedule, or
+inference access. It deliberately reports SPECULAR-CORE as offline and returns
+a deterministic cited answer so the complete unavailable state and expandable
+evidence cards can be reviewed safely. CI captures Chrome and Firefox evidence
+at 320, 375, 768, 1024, and 1440 pixels.
+
+If the interface bundle is absent, altered, or out of sync with its generated
+module, validation fails before deployment. If the production status request
+fails, the browser fails closed to the explicit offline explanation while the
+rest of the interface remains usable. Rollback is the normal Worker version
+rollback to the preceding deployment; no API route, binding, or local inference
+change is required.
+
 ## Required secrets
 
 ```bash
@@ -85,7 +116,10 @@ The site key is public and lives in `[vars]`; the secret key is a secret.
 npm test
 ```
 
-Coverage focuses on the security-critical and contract-critical paths: CORS origin enforcement, rate-limit math, and the atlas-notify event shape. The upstream proxy and SSE pipe are exercised end-to-end against `wrangler dev` in CI rather than mocked.
+Coverage focuses on the security-critical and contract-critical paths: CORS
+origin enforcement, rate-limit math, the atlas-notify event shape, the public
+interface shell, its pinned design-system bundle, offline behavior, temporary
+session ownership, streaming source treatment, and isolated preview boundaries.
 
 ## How it fits into Atlas Systems
 
