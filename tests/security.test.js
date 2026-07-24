@@ -42,11 +42,12 @@ describe("security response boundary", () => {
     const policy = response.headers.get("content-security-policy");
 
     expect(policy).toContain("connect-src 'self' https://api.atlas-systems.uk");
-    expect(policy).toContain("script-src 'unsafe-inline'");
+    expect(policy).toContain("script-src 'self' 'unsafe-inline'");
     expect(policy).toContain("style-src 'unsafe-inline'");
     expect(policy).toContain("font-src 'self'");
     expect(policy).toContain("frame-ancestors 'none'");
     expect(policy).not.toContain("fonts.googleapis.com");
     expect(policy).not.toContain("fonts.gstatic.com");
+    expect(policy).not.toContain("static.cloudflareinsights.com");
   });
 });
