@@ -168,7 +168,7 @@ async function runCase(context, browserName, viewportName) {
     );
     if (!searchFocused) throw new Error("Estate search did not move focus into the dialog");
     await page.keyboard.press("Escape");
-    await page.waitForSelector("#atlas-estate-search[hidden]");
+    await page.waitForSelector("#atlas-estate-search[hidden]", { state: "attached" });
     const searchFocusRestored = await page.evaluate(
       () => document.activeElement?.matches("[data-estate-search-open]"),
     );
