@@ -9,10 +9,11 @@
  * to atlas-notify.
  *
  * Routes:
- *   GET  /             standalone HTML interface
- *   GET  /status       cached awake/asleep probe for live indicators
- *   POST /ask          proxied Q&A, streams SSE back to the client
- *   *    /*            404
+ *   GET  /                             standalone HTML interface
+ *   GET  /.well-known/security.txt     public security contact metadata
+ *   GET  /status                       cached awake/asleep probe for live indicators
+ *   POST /ask                          proxied Q&A, streams SSE back to the client
+ *   *    /*                            404
  */
 
 import { handleAsk } from "./ask.js";
@@ -23,6 +24,7 @@ import { handleInterfaceAsset } from "./interface-assets.js";
 import { corsHeaders, handlePreflight } from "./cors.js";
 import { handleMeta } from "./_meta.js";
 import { secureResponse } from "./security.js";
+import { handleSecurityTxt } from "./security-txt.js";
 
 const META = {
   name: "ramone-edge",
@@ -30,6 +32,7 @@ const META = {
   version: "1.0.0",
   endpoints: [
     { method: "GET", path: "/", description: "Standalone Ramone interface" },
+    { method: "GET", path: "/.well-known/security.txt", description: "Public security contact metadata" },
     { method: "GET", path: "/status", description: "Cached awake/asleep probe for live indicators" },
     { method: "POST", path: "/ask", description: "Turnstile-protected Q&A proxy streaming SSE from the local stack" },
     { method: "GET", path: "/_meta", description: "This document" },
@@ -41,6 +44,8 @@ async function routeRequest(request, env, ctx) {
     const url = new URL(request.url);
 
     if (request.method === "GET") {
+      const securityTxt = handleSecurityTxt(url);
+      if (securityTxt) return securityTxt;
       const browserIcon = handleBrowserIcon(url.pathname);
       if (browserIcon) return browserIcon;
       const interfaceAsset = handleInterfaceAsset(url.pathname);
