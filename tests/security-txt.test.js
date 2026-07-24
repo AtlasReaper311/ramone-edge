@@ -37,4 +37,15 @@ describe("Ramone security contact metadata", () => {
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     expect(response.headers.get("x-frame-options")).toBe("DENY");
   });
+
+  it("allows only same-origin and inline interface scripts", () => {
+    const response = secureResponse(
+      new Response("<!doctype html><title>Ramone</title>", {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      }),
+    );
+    const policy = response.headers.get("content-security-policy");
+    expect(policy).toContain("script-src 'self' 'unsafe-inline'");
+    expect(policy).not.toContain("static.cloudflareinsights.com");
+  });
 });
