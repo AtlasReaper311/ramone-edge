@@ -135,7 +135,7 @@ function assertEvidence(evidence, browserName, viewportName) {
   if (evidence.mainCount !== 1) values.push(`${prefix}: expected one main, found ${evidence.mainCount}`);
   if (evidence.interfaceVersion !== "0.1.1") values.push(`${prefix}: Interface Kit version is not 0.1.1`);
   if (!/^[a-f0-9]{64}$/.test(evidence.interfaceSha256 || "")) values.push(`${prefix}: Interface Kit fingerprint is missing`);
-  if (evidence.statusText !== "SPECULAR-CORE offline") values.push(`${prefix}: offline machine state is not explicit`);
+  if (evidence.statusText !== "asleep") values.push(`${prefix}: Ramone's asleep state is not explicit`);
   if (!evidence.availabilityText.includes("SPECULAR-CORE is currently offline.")) values.push(`${prefix}: offline explanation is missing`);
   if (JSON.stringify(evidence.desktopRoutes) !== JSON.stringify(expectedRoutes)) values.push(`${prefix}: desktop navigation order drifted`);
   if (JSON.stringify(evidence.mobileRoutes) !== JSON.stringify(expectedRoutes)) values.push(`${prefix}: mobile navigation order drifted`);

@@ -383,7 +383,7 @@ export function renderFrontend(_env) {
     stateEl.classList.toggle("awake", awake);
     stateEl.classList.toggle("asleep", !awake);
     document.body.classList.toggle("ramone-offline", !awake);
-    stateText.textContent = awake ? "SPECULAR-CORE online" : "SPECULAR-CORE offline";
+    stateText.textContent = awake ? "awake" : "asleep";
     availability.classList.toggle("is-online", awake);
     availability.querySelector("strong").textContent = awake
       ? "SPECULAR-CORE is online."

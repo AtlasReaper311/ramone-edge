@@ -96,7 +96,8 @@ describe("Ramone estate shell", () => {
     expect(rendered).toContain('id="state-text">connecting</span>');
     expect(rendered).toContain("SPECULAR-CORE is currently offline.");
     expect(rendered).toContain('document.body.classList.toggle("ramone-offline", !awake)');
-    expect(rendered).toContain('awake ? "SPECULAR-CORE online" : "SPECULAR-CORE offline"');
+    expect(rendered).toContain('awake ? "awake" : "asleep"');
+    expect(rendered).not.toContain('awake ? "SPECULAR-CORE online" : "SPECULAR-CORE offline"');
     expect(rendered).toContain('state: "operational"');
     expect(rendered).toContain('operational: "Operational"');
     expect(rendered).not.toContain('state: "nominal"');
