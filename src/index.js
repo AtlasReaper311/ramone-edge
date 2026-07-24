@@ -21,6 +21,7 @@ import { renderFrontend } from "./frontend.js";
 import { handleBrowserIcon } from "./browser-icons.js";
 import { corsHeaders, handlePreflight } from "./cors.js";
 import { handleMeta } from "./_meta.js";
+import { secureResponse } from "./security.js";
 
 const META = {
   name: "ramone-edge",
@@ -35,8 +36,7 @@ const META = {
   source: "https://github.com/AtlasReaper311/ramone-edge",
 };
 
-export default {
-  async fetch(request, env, ctx) {
+async function routeRequest(request, env, ctx) {
     const url = new URL(request.url);
 
     if (request.method === "GET") {
@@ -77,6 +77,11 @@ export default {
       console.error("unhandled error:", err && err.stack ? err.stack : err);
       return json({ error: "internal_error" }, 500, request, env);
     }
+}
+
+export default {
+  async fetch(request, env, ctx) {
+    return secureResponse(await routeRequest(request, env, ctx));
   },
 };
 

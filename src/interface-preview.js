@@ -1,20 +1,17 @@
 import { handleBrowserIcon } from "./browser-icons.js";
 import { renderFrontend } from "./frontend.js";
+import { secureResponse } from "./security.js";
 
 const SECURITY_HEADERS = {
-  "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.atlas-systems.uk; font-src https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
-  "permissions-policy": "camera=(), microphone=(), geolocation=()",
-  "referrer-policy": "strict-origin-when-cross-origin",
-  "x-content-type-options": "nosniff",
-  "x-frame-options": "DENY",
+  "cache-control": "no-store",
+  "x-atlas-preview": "ramone-interface",
 };
 
 function withHeaders(response) {
-  const headers = new Headers(response.headers);
+  const secured = secureResponse(response);
+  const headers = new Headers(secured.headers);
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value);
-  headers.set("cache-control", "no-store");
-  headers.set("x-atlas-preview", "ramone-interface");
-  return new Response(response.body, { status: response.status, headers });
+  return new Response(secured.body, { status: secured.status, headers });
 }
 
 export default {
