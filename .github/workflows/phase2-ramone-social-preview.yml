@@ -61,17 +61,17 @@ jobs:
           if source.count(old_card) != 2:
               raise SystemExit("expected exactly two generic Ramone card references")
           source = source.replace(old_card, new_card)
-          old_alt = '<meta property="og:image:alt" content="Ramone: the Atlas Systems grounded local-AI interface">'
-          new_alt = '<meta property="og:image:alt" content="Ramone. Local AI, self-hosted. // Atlas Systems">'
+          old_alt = '<meta property="og:image:alt" content="Ramone: the Atlas Systems grounded local-AI interface" />'
+          new_alt = '<meta property="og:image:alt" content="Ramone. Local AI, self-hosted. // Atlas Systems" />'
           if source.count(old_alt) != 1:
               raise SystemExit("expected the existing Ramone Open Graph alt tag")
           source = source.replace(old_alt, new_alt)
-          twitter_image = f'<meta name="twitter:image" content="{new_card}">'
-          twitter_alt = '<meta name="twitter:image:alt" content="Ramone. Local AI, self-hosted. // Atlas Systems">'
+          twitter_image = f'<meta name="twitter:image" content="{new_card}" />'
+          twitter_alt = '<meta name="twitter:image:alt" content="Ramone. Local AI, self-hosted. // Atlas Systems" />'
           if twitter_alt not in source:
               if source.count(twitter_image) != 1:
                   raise SystemExit("expected one Ramone Twitter image tag")
-              source = source.replace(twitter_image, f"{twitter_image}\n  {twitter_alt}")
+              source = source.replace(twitter_image, f"{twitter_image}\n{twitter_alt}")
           frontend.write_text(source, encoding="utf-8")
 
           tests = Path("tests/interface-shell.test.js")
