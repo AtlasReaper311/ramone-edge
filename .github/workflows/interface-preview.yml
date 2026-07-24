@@ -6,107 +6,119 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - ".github/workflows/interface-preview.yml"
+      - "README.md"
       - "package.json"
       - "package-lock.json"
-      - "src/frontend.js"
-      - "src/frontend-core.js"
+      - "assets/browser-icons/**"
+      - "assets/interface/**"
+      - "docs/PHASE-E-RAMONE-EDGE-INTERFACE-V2.md"
+      - "scripts/capture-interface-evidence.mjs"
+      - "scripts/embed-browser-icons.mjs"
+      - "scripts/embed-interface-bundle.mjs"
+      - "scripts/verify-interface-bundle.mjs"
       - "src/browser-icons.js"
       - "src/browser-icons.generated.js"
+      - "src/frontend.js"
+      - "src/frontend-core.js"
+      - "src/interface-bundle.generated.js"
       - "src/interface-preview.js"
-      - "scripts/embed-browser-icons.mjs"
-      - "assets/browser-icons/site.webmanifest"
-      - "test/interface-shell.test.js"
+      - "tests/interface-shell.test.js"
       - "wrangler.interface-preview.toml"
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: ${{ github.repository }}-public-interface-preview-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  preview:
-    name: Validate and publish isolated Ramone preview
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'feat/estate-shell-v1'
+  validate:
+    name: Validate Ramone interface candidate
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    environment:
-      name: public-interface-preview
-      url: ${{ steps.deploy.outputs.preview_url }}
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      PREVIEW_WORKER: ramone-interface-pr-${{ github.event.pull_request.number }}
     steps:
-      - name: Check out preview branch
+      - name: Check out exact pull request commit
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0, Node 24
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-
-      - name: Check out canonical browser icons
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0, Node 24
-        with:
-          repository: AtlasReaper311/atlas-systems
-          ref: main
-          path: .atlas-icon-source
-          sparse-checkout: |
-            favicon.ico
-            favicon_io
-          sparse-checkout-cone-mode: false
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0, Node 24
         with:
           node-version: "22"
           cache: npm
 
-      - name: Synchronize and embed canonical browser icons
-        id: icons
-        run: |
-          set -euo pipefail
-          mkdir -p assets/browser-icons
-          cp .atlas-icon-source/favicon.ico assets/browser-icons/favicon.ico
-          cp .atlas-icon-source/favicon_io/favicon-16x16.png assets/browser-icons/favicon-16x16.png
-          cp .atlas-icon-source/favicon_io/favicon-32x32.png assets/browser-icons/favicon-32x32.png
-          cp .atlas-icon-source/favicon_io/apple-touch-icon.png assets/browser-icons/apple-touch-icon.png
-          cp .atlas-icon-source/favicon_io/android-chrome-192x192.png assets/browser-icons/android-chrome-192x192.png
-          cp .atlas-icon-source/favicon_io/android-chrome-512x512.png assets/browser-icons/android-chrome-512x512.png
-          rm -rf .atlas-icon-source
-          node scripts/embed-browser-icons.mjs
-          if git diff --quiet -- assets/browser-icons src/browser-icons.generated.js; then
-            echo "changed=false" >> "${GITHUB_OUTPUT}"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add assets/browser-icons src/browser-icons.generated.js
-            git commit -m "assets: synchronize canonical browser icons"
-            git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
-            echo "changed=true" >> "${GITHUB_OUTPUT}"
-          fi
-          echo "commit=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
-
       - name: Install declared dependencies
         run: npm ci
 
-      - name: Validate source and isolated preview bundle
+      - name: Verify pinned interface and generated assets
+        run: |
+          set -euo pipefail
+          npm run verify:interface
+          npm run build:interface
+          npm run build:icons
+          git diff --exit-code -- src/interface-bundle.generated.js src/browser-icons.generated.js
+
+      - name: Validate source, tests, and Worker bundles
         run: |
           set -euo pipefail
           npm run check
           npm run lint
           npm test
-          node --check src/interface-preview.js
-          npx wrangler deploy --config wrangler.interface-preview.toml --dry-run --outdir "$RUNNER_TEMP/interface-preview"
-          test -s assets/browser-icons/favicon.ico
-          test -s assets/browser-icons/site.webmanifest
+          node --check scripts/capture-interface-evidence.mjs
+          npx wrangler deploy --config wrangler.toml --dry-run --outdir "$RUNNER_TEMP/ramone-production-dry-run"
+          npx wrangler deploy --config wrangler.interface-preview.toml --dry-run --outdir "$RUNNER_TEMP/ramone-preview-dry-run"
           git diff --check
 
-      - name: Guard production boundary
+      - name: Guard production and preview boundaries
+        env:
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           set -euo pipefail
-          test "${{ github.event.pull_request.head.ref }}" = "feat/estate-shell-v1"
+          test "${{ github.event.pull_request.base.ref }}" = "main"
+          test "${SOURCE_BRANCH}" != "main"
+          test "${SOURCE_BRANCH}" != "production"
+          grep -q '^workers_dev = true$' wrangler.interface-preview.toml
+          grep -q '^preview_urls = false$' wrangler.interface-preview.toml
+          ! grep -Eq '^(route|routes|\[\[routes\]\]|\[triggers\]|\[\[services\]\]|\[\[kv_namespaces\]\])' wrangler.interface-preview.toml
+
+  deploy-preview:
+    name: Publish isolated Ramone preview
+    needs: validate
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: public-interface-preview
+      url: ${{ steps.deploy.outputs.preview_url }}
+    outputs:
+      preview_url: ${{ steps.deploy.outputs.preview_url }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PREVIEW_WORKER: ramone-interface-pr-${{ github.event.pull_request.number }}
+    steps:
+      - name: Check out exact pull request commit
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0, Node 24
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0, Node 24
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install declared dependencies
+        run: npm ci
+
+      - name: Guard isolated preview target
+        run: |
+          set -euo pipefail
           test "${PREVIEW_WORKER}" = "ramone-interface-pr-${{ github.event.pull_request.number }}"
           grep -q '^workers_dev = true$' wrangler.interface-preview.toml
           grep -q '^preview_urls = false$' wrangler.interface-preview.toml
@@ -125,11 +137,10 @@ jobs:
           test -n "${preview_url}"
           echo "preview_url=${preview_url}" >> "${GITHUB_OUTPUT}"
 
-      - name: Attach live preview to the draft pull request
+      - name: Attach preview to the draft pull request
         env:
           GH_TOKEN: ${{ github.token }}
           PREVIEW_URL: ${{ steps.deploy.outputs.preview_url }}
-          PREVIEW_COMMIT: ${{ steps.icons.outputs.commit }}
         run: |
           set -euo pipefail
           marker="<!-- atlas-public-interface-preview -->"
@@ -137,13 +148,60 @@ jobs:
           ## Live interface preview
 
           - Preview: ${PREVIEW_URL}
-          - Commit: \`${PREVIEW_COMMIT}\`
+          - Commit: \`${{ github.event.pull_request.head.sha }}\`
           - Production: unchanged
 
-          This isolated workers.dev Worker has no production routes, service bindings, KV bindings, schedules, or inference access. The \`/ask\` route is deliberately disabled."
+          This isolated workers.dev Worker has no production routes, service bindings, KV bindings, schedules, or inference access. Its offline status and cited answer are deterministic browser fixtures for visual approval."
           existing_id="$(gh api "/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.pull_request.number }}/comments" --paginate --jq ".[] | select(.body | contains(\"${marker}\")) | .id" | head -n 1)"
           if [ -n "${existing_id}" ]; then
             gh api --method PATCH "/repos/${GITHUB_REPOSITORY}/issues/comments/${existing_id}" -f body="${body}"
           else
             gh pr comment "${{ github.event.pull_request.number }}" --body "${body}"
           fi
+
+  capture-evidence:
+    name: Capture Ramone browser evidence
+    needs: deploy-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PREVIEW_URL: ${{ needs.deploy-preview.outputs.preview_url }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Check out exact evidence runner
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0, Node 24
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          sparse-checkout: scripts/capture-interface-evidence.mjs
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0, Node 24
+        with:
+          node-version: "22"
+
+      - name: Install pinned browser and accessibility tooling
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/ramone-interface-evidence"
+          cp scripts/capture-interface-evidence.mjs "${RUNNER_TEMP}/ramone-interface-evidence/"
+          cd "${RUNNER_TEMP}/ramone-interface-evidence"
+          npm init -y >/dev/null
+          npm install --save-exact playwright@1.61.1 @axe-core/playwright@4.12.1
+          npm audit --audit-level=high
+          npx playwright install --with-deps firefox
+
+      - name: Capture Chrome and Firefox viewport matrix
+        working-directory: ${{ runner.temp }}/ramone-interface-evidence
+        run: node capture-interface-evidence.mjs
+
+      - name: Upload exact-SHA interface evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1, Node 24
+        with:
+          name: ramone-interface-evidence-${{ github.event.pull_request.head.sha }}
+          path: |
+            ${{ runner.temp }}/ramone-interface-evidence/evidence.json
+            ${{ runner.temp }}/ramone-interface-evidence/capture-error.txt
+            ${{ runner.temp }}/ramone-interface-evidence/screenshots/*.png
+          if-no-files-found: error
+          retention-days: 14
