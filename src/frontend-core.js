@@ -175,35 +175,99 @@ export function renderFrontend(_env) {
     </div>
   </header>
 
-  <section class="hero">
-    <h1>Ask my <em>infrastructure</em>.</h1>
-    <p class="lede">A local AI grounded on Atlas Systems documentation. Every query runs on the RTX 5070 inside SPECULAR-CORE through a Cloudflare Tunnel, with no third-party inference. Sources are surfaced beneath every answer.</p>
+  <section class="hero ramone-intro" aria-labelledby="ramone-title">
+    <div class="ramone-intro-copy">
+      <p class="ramone-eyebrow">Grounded local AI // public interface</p>
+      <h1 id="ramone-title">Hi, I'm <em>Ramone.</em></h1>
+      <p class="ramone-command">Ask my infrastructure.</p>
+      <p class="lede">I answer questions about the public Atlas Systems estate using its published documentation and evidence. I run on owner-operated local infrastructure and show where each answer came from.</p>
+      <div class="ramone-availability" id="machine-availability" role="note">
+        <span class="ramone-availability-dot" aria-hidden="true"></span>
+        <div><strong>Checking SPECULAR-CORE availability.</strong><span>The conversation stays visible while I check whether inference is online.</span></div>
+      </div>
+    </div>
+    <div class="ramone-knowledge-flow" aria-hidden="true">
+      <svg viewBox="0 0 520 360" role="presentation">
+        <defs>
+          <linearGradient id="ramone-flow-gradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#60a5fa" />
+            <stop offset=".52" stop-color="#f5a623" />
+            <stop offset="1" stop-color="#4ade80" />
+          </linearGradient>
+          <filter id="ramone-flow-glow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+        <g class="flow-grid">
+          <path d="M20 72H500M20 144H500M20 216H500M20 288H500" />
+          <path d="M100 20V340M180 20V340M260 20V340M340 20V340M420 20V340" />
+        </g>
+        <g class="flow-links">
+          <path d="M54 92C136 92 122 180 204 180S290 86 372 86 420 150 474 150" />
+          <path d="M58 274C128 274 138 224 204 224S286 292 354 292 398 232 468 232" />
+          <path d="M112 72C112 128 154 146 204 180M204 224C252 224 264 190 300 170M372 86C372 142 408 172 474 150" />
+        </g>
+        <g class="flow-nodes">
+          <circle cx="54" cy="92" r="7" />
+          <circle cx="58" cy="274" r="7" />
+          <circle cx="112" cy="72" r="5" />
+          <circle cx="204" cy="180" r="11" class="flow-node-core" />
+          <circle cx="204" cy="224" r="7" />
+          <circle cx="300" cy="170" r="6" />
+          <circle cx="354" cy="292" r="7" />
+          <circle cx="372" cy="86" r="8" />
+          <circle cx="468" cy="232" r="7" />
+          <circle cx="474" cy="150" r="11" class="flow-node-answer" />
+        </g>
+        <g class="flow-packets" filter="url(#ramone-flow-glow)">
+          <circle r="4"><animateMotion dur="5.6s" repeatCount="indefinite" path="M54 92C136 92 122 180 204 180S290 86 372 86 420 150 474 150" /></circle>
+          <circle r="3"><animateMotion dur="6.8s" begin="-2.4s" repeatCount="indefinite" path="M58 274C128 274 138 224 204 224S286 292 354 292 398 232 468 232" /></circle>
+        </g>
+      </svg>
+      <div class="flow-legend"><span>public docs</span><span>grounded retrieval</span><span>cited answer</span></div>
+    </div>
   </section>
 
-  <div class="label">try one of these</div>
-  <div class="suggestions" id="suggestions">
-    <button class="suggestion" type="button">What runs at api.atlas-systems.uk?</button>
-    <button class="suggestion" type="button">How does the CI/CD pipeline work?</button>
-    <button class="suggestion" type="button">Why Cloudflare Workers over a VPS?</button>
-    <button class="suggestion" type="button">What's the local AI stack on SPECULAR-CORE?</button>
-  </div>
-
-  <div class="label" id="log-label" style="display:none">transmission log</div>
-  <div class="log" id="log" aria-live="polite"></div>
-
-  <div class="composer" id="composer">
-    <div class="composer-prompt">&gt; ask ramone</div>
-    <textarea
-      class="input" id="input" rows="1" maxlength="2000"
-      placeholder="type a question and press enter, or shift+enter for a new line"
-      aria-label="Ask Ramone a question"
-    ></textarea>
-    <div class="composer-actions">
-      <span class="char-count" id="char-count">0 / 2000</span>
-      <button class="reset-session" id="reset-session" type="button">new conversation</button>
-      <button class="transmit" id="send" type="button" disabled>transmit</button>
+  <aside class="ramone-boundary" aria-labelledby="ramone-boundary-title">
+    <div>
+      <p class="ramone-eyebrow">Knowledge boundary</p>
+      <h2 id="ramone-boundary-title">Grounded in what Atlas publishes.</h2>
     </div>
-  </div>
+    <div class="ramone-boundary-grid">
+      <section><h3>I can use</h3><p>Public documentation, architecture explanations, project evidence, articles, and published service context.</p></section>
+      <section><h3>I cannot see</h3><p>Secrets, private repositories, personal files, private memory, or systems that are not deliberately part of the public corpus.</p></section>
+    </div>
+  </aside>
+
+  <section class="starter-prompts" id="starter-prompts" aria-labelledby="starter-title">
+    <div class="label" id="starter-title">start with a public question</div>
+    <div class="suggestions" id="suggestions">
+      <button class="suggestion" type="button">What is Atlas Systems?</button>
+      <button class="suggestion" type="button">How does the public estate fit together?</button>
+      <button class="suggestion" type="button">Show me an engineering project with evidence.</button>
+      <button class="suggestion" type="button">How is reliability proven across the estate?</button>
+    </div>
+  </section>
+
+  <section class="conversation-console" aria-label="Ramone conversation">
+    <div class="label" id="log-label" style="display:none">conversation stream</div>
+    <div class="log" id="log" aria-live="polite"></div>
+
+    <div class="composer" id="composer">
+      <div class="composer-prompt"><span aria-hidden="true">▍</span> ask ramone</div>
+      <textarea
+        class="input" id="input" rows="1" maxlength="2000"
+        placeholder="type a question and press enter, or shift+enter for a new line"
+        aria-label="Ask Ramone a question"
+      ></textarea>
+      <div class="composer-actions">
+        <span class="char-count" id="char-count">0 / 2000</span>
+        <button class="reset-session" id="reset-session" type="button">new conversation</button>
+        <button class="transmit" id="send" type="button" disabled>transmit</button>
+      </div>
+    </div>
+  </section>
 
   <footer class="footer">
     <div>built and maintained by <a href="https://atlas-systems.uk/about">atlas reaper</a></div>
@@ -221,6 +285,8 @@ export function renderFrontend(_env) {
 
   var stateEl   = document.getElementById("machine-state");
   var stateText = document.getElementById("state-text");
+  var availability = document.getElementById("machine-availability");
+  var starterPrompts = document.getElementById("starter-prompts");
   var log       = document.getElementById("log");
   var logLabel  = document.getElementById("log-label");
   var input     = document.getElementById("input");
@@ -316,7 +382,15 @@ export function renderFrontend(_env) {
     lastAwake = awake;
     stateEl.classList.toggle("awake", awake);
     stateEl.classList.toggle("asleep", !awake);
-    stateText.textContent = awake ? "awake · llama3.1:8b · RTX 5070" : "asleep";
+    document.body.classList.toggle("ramone-offline", !awake);
+    stateText.textContent = awake ? "SPECULAR-CORE online" : "SPECULAR-CORE offline";
+    availability.classList.toggle("is-online", awake);
+    availability.querySelector("strong").textContent = awake
+      ? "SPECULAR-CORE is online."
+      : "SPECULAR-CORE is currently offline.";
+    availability.querySelector("span:last-child").textContent = awake
+      ? "Ramone is ready to answer grounded questions."
+      : "The interface remains available; grounded inference will return when the machine is online.";
   }
   async function pollStatus() {
     try {
@@ -336,6 +410,10 @@ export function renderFrontend(_env) {
     inFlight = true;
     updateSendState();
     logLabel.style.display = "";
+    starterPrompts.classList.add("is-receding");
+    starterPrompts.setAttribute("aria-hidden", "true");
+    starterPrompts.querySelectorAll("button").forEach(function (button) { button.disabled = true; });
+    setTimeout(function () { starterPrompts.hidden = true; }, 260);
 
     var entry = appendEntry(question);
     var ans = entry.querySelector(".entry-answer");
@@ -433,11 +511,21 @@ export function renderFrontend(_env) {
     var wrap = document.createElement("div");
     wrap.className = "entry-sources";
     sources.forEach(function (s, i) {
-      var tag = document.createElement("span");
-      tag.className = "source";
-      tag.innerHTML = "<strong>[" + (i + 1) + "]</strong> " + escapeHtml(s.id || "source");
-      if (s.preview) tag.title = s.preview;
-      wrap.appendChild(tag);
+      var card = document.createElement("details");
+      card.className = "source-card";
+      var summary = document.createElement("summary");
+      var index = document.createElement("strong");
+      index.textContent = "[" + (i + 1) + "]";
+      var identity = document.createElement("span");
+      identity.textContent = s.id || "source";
+      var affordance = document.createElement("span");
+      affordance.className = "source-card-affordance";
+      affordance.textContent = "inspect";
+      summary.append(index, identity, affordance);
+      var preview = document.createElement("p");
+      preview.textContent = s.preview || "Referenced public source evidence.";
+      card.append(summary, preview);
+      wrap.appendChild(card);
     });
     entry.appendChild(wrap);
   }
@@ -454,7 +542,7 @@ export function renderFrontend(_env) {
   function renderSleeping(entry, ans, cursor, message) {
     entry.classList.add("error");
     cursor.remove();
-    ans.textContent = message || "Ramone is asleep right now. Try again later.";
+    ans.textContent = message || "SPECULAR-CORE is currently offline. Ramone will be available when the machine is online.";
   }
   function renderError(entry, ans, cursor, message) {
     entry.classList.add("error");
@@ -468,12 +556,6 @@ export function renderFrontend(_env) {
       entry.appendChild(e);
     }
   }
-  function escapeHtml(s) {
-    return String(s)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-  }
-
   updateCharCount();
   updateSendState();
 })();

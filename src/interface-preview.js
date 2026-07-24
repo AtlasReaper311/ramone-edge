@@ -2,7 +2,7 @@ import { handleBrowserIcon } from "./browser-icons.js";
 import { renderFrontend } from "./frontend.js";
 
 const SECURITY_HEADERS = {
-  "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: https:; connect-src https://api.atlas-systems.uk; font-src https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+  "content-security-policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.atlas-systems.uk; font-src https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
   "permissions-policy": "camera=(), microphone=(), geolocation=()",
   "referrer-policy": "strict-origin-when-cross-origin",
   "x-content-type-options": "nosniff",
@@ -32,9 +32,41 @@ export default {
     }
 
     if (url.pathname === "/ask") {
-      return withHeaders(Response.json({
-        message: "Inference is disabled in the non-production interface preview.",
-      }, { status: 503 }));
+      if (request.method !== "POST") {
+        return withHeaders(new Response("Method not allowed", {
+          status: 405,
+          headers: { allow: "POST" },
+        }));
+      }
+
+      const fixtureEvents = [
+        {
+          type: "token",
+          text: "This is a deterministic preview response. It demonstrates Ramone's grounded answer and evidence treatment without contacting SPECULAR-CORE.",
+        },
+        {
+          type: "sources",
+          sources: [
+            {
+              id: "atlas-systems/public-interface-v2",
+              preview: "Public interface policy, navigation order, maturity language, and accessibility requirements.",
+            },
+            {
+              id: "ramone-edge/interface-contract",
+              preview: "The public gateway contract for status, temporary sessions, streaming answers, and cited evidence.",
+            },
+          ],
+        },
+      ];
+      const body = fixtureEvents
+        .map((event) => `data: ${JSON.stringify(event)}\n\n`)
+        .join("");
+      return withHeaders(new Response(body, {
+        headers: {
+          "content-type": "text/event-stream; charset=utf-8",
+          "cache-control": "no-store",
+        },
+      }));
     }
 
     if (url.pathname !== "/" && url.pathname !== "/index.html") {
