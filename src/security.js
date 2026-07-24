@@ -18,7 +18,7 @@ const INTERFACE_CONTENT_SECURITY_POLICY = [
   "frame-ancestors 'none'",
   "img-src 'self' data: https://atlas-systems.uk",
   "manifest-src 'self'",
-  "script-src 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline'",
   "style-src 'unsafe-inline'",
 ].join("; ");
 
