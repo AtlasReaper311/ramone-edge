@@ -22,14 +22,15 @@ const HEAD = `<title>Ramone // Atlas Systems</title>
 <meta property="og:description" content="A grounded local-AI interface for exploring the public Atlas Systems engineering estate." />
 <meta property="og:url" content="https://ramone.atlas-systems.uk/" />
 <meta property="og:site_name" content="Atlas Systems" />
-<meta property="og:image" content="https://atlas-systems.uk/og-default.png" />
+<meta property="og:image" content="https://atlas-systems.uk/og/ramone.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Ramone: the Atlas Systems grounded local-AI interface" />
+<meta property="og:image:alt" content="Ramone. Local AI, self-hosted. // Atlas Systems" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Ramone // Atlas Systems" />
 <meta name="twitter:description" content="A grounded local-AI interface for exploring the public Atlas Systems engineering estate." />
-<meta name="twitter:image" content="https://atlas-systems.uk/og-default.png" />`;
+<meta name="twitter:image" content="https://atlas-systems.uk/og/ramone.png" />
+<meta name="twitter:image:alt" content="Ramone. Local AI, self-hosted. // Atlas Systems" />`;
 
 const SHELL_CSS = `${RAMONE_INTERFACE_FONT_CSS}
 ${RAMONE_INTERFACE_CSS}

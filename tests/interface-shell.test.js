@@ -52,7 +52,10 @@ describe("Ramone estate shell", () => {
     expect(rendered).toContain(">Checking</span>");
     expect(rendered).toContain('<link rel="canonical" href="https://ramone.atlas-systems.uk/"');
     expect(rendered).toContain('<link rel="icon" href="/favicon.ico"');
-    expect(rendered).toContain('property="og:image:alt"');
+    expect(rendered).toContain('property="og:image" content="https://atlas-systems.uk/og/ramone.png"');
+    expect(rendered).toContain('name="twitter:image" content="https://atlas-systems.uk/og/ramone.png"');
+    expect(rendered).toContain('property="og:image:alt" content="Ramone. Local AI, self-hosted. // Atlas Systems"');
+    expect(rendered).toContain('name="twitter:image:alt" content="Ramone. Local AI, self-hosted. // Atlas Systems"');
     expect(rendered).toContain('name="twitter:card"');
     expect(rendered).toContain(`name="atlas-interface-version" content="${RAMONE_INTERFACE_VERSION}"`);
     expect(rendered).toContain(`name="atlas-interface-sha256" content="${RAMONE_INTERFACE_SHA256}"`);
