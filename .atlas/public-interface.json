@@ -1,0 +1,53 @@
+{
+  "schema_version": "atlas-control-plane/public-interface-surface/v1",
+  "repository": "AtlasReaper311/ramone-edge",
+  "surfaces": [
+    {
+      "url": "https://ramone.atlas-systems.uk/",
+      "source": "src/frontend-core.js",
+      "kind": "product",
+      "indexing": "index",
+      "global_header": true,
+      "search": true,
+      "status_indicator": "aggregate-link",
+      "icons": [
+        "favicon.ico",
+        "favicon-16x16.png",
+        "favicon-32x32.png",
+        "apple-touch-icon.png",
+        "android-chrome-192x192.png",
+        "android-chrome-512x512.png",
+        "site.webmanifest"
+      ],
+      "metadata": [
+        "title",
+        "description",
+        "canonical",
+        "theme-color",
+        "icons",
+        "og:type",
+        "og:title",
+        "og:description",
+        "og:url",
+        "og:site_name",
+        "og:image",
+        "og:image:width",
+        "og:image:height",
+        "og:image:alt",
+        "twitter:card",
+        "twitter:title",
+        "twitter:description",
+        "twitter:image"
+      ],
+      "footer": "Ramone product boundary and Atlas estate escape",
+      "link_policy": "atlas-owned-same-tab-external-safe-new-tab",
+      "generated_owner": null,
+      "notes": [
+        "Interface conformance does not change inference, grounding, tunnel, rate-limit, or asleep-state contracts."
+      ]
+    }
+  ],
+  "machine_surface_exclusions": [
+    "Ask, status, metadata, notification, and health endpoints"
+  ]
+}
