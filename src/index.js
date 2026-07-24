@@ -10,6 +10,7 @@
  *
  * Routes:
  *   GET  /             standalone HTML interface
+ *   GET  /.well-known/security.txt security contact
  *   GET  /status       cached awake/asleep probe for live indicators
  *   POST /ask          proxied Q&A, streams SSE back to the client
  *   *    /*            404
@@ -24,12 +25,19 @@ import { corsHeaders, handlePreflight } from "./cors.js";
 import { handleMeta } from "./_meta.js";
 import { secureResponse } from "./security.js";
 
+const SECURITY_TEXT = `Contact: mailto:atlas@atlas-systems.uk
+Expires: 2027-07-24T23:59:59Z
+Preferred-Languages: en
+Canonical: https://ramone.atlas-systems.uk/.well-known/security.txt
+`;
+
 const META = {
   name: "ramone-edge",
   description: "Public edge for the Ramone local-AI tunnel with Turnstile, rate limits, and SSE responses",
   version: "1.0.0",
   endpoints: [
     { method: "GET", path: "/", description: "Standalone Ramone interface" },
+    { method: "GET", path: "/.well-known/security.txt", description: "Security contact" },
     { method: "GET", path: "/status", description: "Cached awake/asleep probe for live indicators" },
     { method: "POST", path: "/ask", description: "Turnstile-protected Q&A proxy streaming SSE from the local stack" },
     { method: "GET", path: "/_meta", description: "This document" },
@@ -66,6 +74,15 @@ async function routeRequest(request, env, ctx) {
         });
       }
 
+      if (request.method === "GET" && url.pathname === "/.well-known/security.txt") {
+        return new Response(SECURITY_TEXT, {
+          headers: {
+            "content-type": "text/plain; charset=utf-8",
+            "cache-control": "public, max-age=3600",
+          },
+        });
+      }
+
       if (request.method === "GET" && url.pathname === "/status") {
         return handleStatus(request, env, ctx);
       }
@@ -76,7 +93,6 @@ async function routeRequest(request, env, ctx) {
 
       return json({ error: "not_found" }, 404, request, env);
     } catch (err) {
-      // Never leak stack traces. Log to tail, return a generic 500.
       console.error("unhandled error:", err && err.stack ? err.stack : err);
       return json({ error: "internal_error" }, 500, request, env);
     }
@@ -88,10 +104,6 @@ export default {
   },
 };
 
-/**
- * JSON response helper with CORS headers attached.
- * Centralising this means CORS can never be forgotten on an error path.
- */
 function json(body, status, request, env) {
   return new Response(JSON.stringify(body), {
     status,
