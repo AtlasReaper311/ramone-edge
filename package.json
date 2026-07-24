@@ -13,7 +13,7 @@
     "test:watch": "vitest",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
-    "check": "node --check src/index.js && node --check src/ask.js && node --check src/cors.js && node --check src/frontend.js && node --check src/frontend-core.js && node --check src/browser-icons.js && node --check src/browser-icons.generated.js && node --check src/interface-bundle.generated.js && node --check src/interface-preview.js && node --check src/notify.js && node --check src/ratelimit.js && node --check src/status.js && node --check scripts/capture-interface-evidence.mjs && node --check scripts/embed-browser-icons.mjs && node --check scripts/embed-interface-bundle.mjs && node --check scripts/verify-interface-bundle.mjs"
+    "check": "node --check src/index.js && node --check src/ask.js && node --check src/cors.js && node --check src/frontend.js && node --check src/frontend-core.js && node --check src/browser-icons.js && node --check src/browser-icons.generated.js && node --check src/interface-bundle.generated.js && node --check src/interface-preview.js && node --check src/notify.js && node --check src/ratelimit.js && node --check src/security.js && node --check src/status.js && node --check scripts/capture-interface-evidence.mjs && node --check scripts/embed-browser-icons.mjs && node --check scripts/embed-interface-bundle.mjs && node --check scripts/verify-interface-bundle.mjs"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.18.6",
