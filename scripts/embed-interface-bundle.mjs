@@ -3,12 +3,14 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const version = "0.1.1";
+const version = "0.2.0";
 const source = path.join(root, "assets", "interface", `v${version}`);
 const manifest = JSON.parse(
   fs.readFileSync(path.join(source, "manifest.json"), "utf8"),
 );
 const stylesheet = "atlas-interface-kit.css";
+const fontStylesheet = "atlas-fonts.css";
+const fontRoot = "/assets/interface/fonts/";
 const output = path.join(root, "src", "interface-bundle.generated.js");
 
 function sha256(buffer) {
@@ -36,6 +38,25 @@ for (const [filename, record] of Object.entries(manifest.files || {})) {
 }
 
 const css = fs.readFileSync(path.join(source, stylesheet), "utf8");
+const fontCss = fs
+  .readFileSync(path.join(source, fontStylesheet), "utf8")
+  .replaceAll("./fonts/", fontRoot);
+const fontAssets = Object.fromEntries(
+  Object.entries(manifest.files)
+    .filter(([filename]) => filename.startsWith("fonts/"))
+    .map(([filename, record]) => {
+      const route = `${fontRoot}${path.basename(filename)}`;
+      const buffer = fs.readFileSync(path.join(source, filename));
+      return [
+        route,
+        {
+          contentType: "font/woff2",
+          sha256: record.sha256,
+          base64: buffer.toString("base64"),
+        },
+      ];
+    }),
+);
 fs.writeFileSync(
   output,
   [
@@ -43,6 +64,8 @@ fs.writeFileSync(
     `export const RAMONE_INTERFACE_VERSION = ${JSON.stringify(version)};`,
     `export const RAMONE_INTERFACE_SHA256 = ${JSON.stringify(manifest.files[stylesheet].sha256)};`,
     `export const RAMONE_INTERFACE_CSS = ${JSON.stringify(css)};`,
+    `export const RAMONE_INTERFACE_FONT_CSS = ${JSON.stringify(fontCss)};`,
+    `export const RAMONE_INTERFACE_FONT_ASSETS = Object.freeze(${JSON.stringify(fontAssets, null, 2)});`,
     "",
   ].join("\n"),
   "utf8",

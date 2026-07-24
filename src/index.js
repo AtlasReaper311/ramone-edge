@@ -19,6 +19,7 @@ import { handleAsk } from "./ask.js";
 import { handleStatus } from "./status.js";
 import { renderFrontend } from "./frontend.js";
 import { handleBrowserIcon } from "./browser-icons.js";
+import { handleInterfaceAsset } from "./interface-assets.js";
 import { corsHeaders, handlePreflight } from "./cors.js";
 import { handleMeta } from "./_meta.js";
 import { secureResponse } from "./security.js";
@@ -42,6 +43,8 @@ async function routeRequest(request, env, ctx) {
     if (request.method === "GET") {
       const browserIcon = handleBrowserIcon(url.pathname);
       if (browserIcon) return browserIcon;
+      const interfaceAsset = handleInterfaceAsset(url.pathname);
+      if (interfaceAsset) return interfaceAsset;
     }
 
     const meta = handleMeta(url, META);

@@ -1,6 +1,7 @@
 import { renderFrontend as renderCoreFrontend } from "./frontend-core.js";
 import {
   RAMONE_INTERFACE_CSS,
+  RAMONE_INTERFACE_FONT_CSS,
   RAMONE_INTERFACE_SHA256,
   RAMONE_INTERFACE_VERSION,
 } from "./interface-bundle.generated.js";
@@ -30,7 +31,8 @@ const HEAD = `<title>Ramone // Atlas Systems</title>
 <meta name="twitter:description" content="A grounded local-AI interface for exploring the public Atlas Systems engineering estate." />
 <meta name="twitter:image" content="https://atlas-systems.uk/og-default.png" />`;
 
-const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
+const SHELL_CSS = `${RAMONE_INTERFACE_FONT_CSS}
+${RAMONE_INTERFACE_CSS}
   .ramone-global-header { font-family: var(--atlas-font-body); }
   .atlas-brand-cluster { display: inline-flex; align-items: center; gap: 12px; min-width: 0; }
   .atlas-wordmark { min-height: var(--atlas-touch-min); display: inline-flex; align-items: center; color: var(--text); font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
@@ -735,6 +737,10 @@ export function renderFrontend(env) {
   html = html.replace(
     /<title>Ramone — Atlas Systems<\/title>[\s\S]*?<link rel="icon" href="https:\/\/atlas-systems\.uk\/favicon\.ico" \/>/,
     HEAD,
+  );
+  html = html.replace(
+    /<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com" \/>\n<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin \/>\n<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com\/[^"]+" \/>\n/,
+    "",
   );
   html = html.replace("</style>\n</head>", `${SHELL_CSS}\n</style>\n</head>`);
   html = html.replace("<body>\n<div class=\"shell\">", `<body data-atlas-bottom-nav="true">\n${HEADER}\n<div class="shell">`);

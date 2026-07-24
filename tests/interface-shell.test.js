@@ -4,10 +4,13 @@ import { describe, expect, it } from "vitest";
 
 import { renderFrontend } from "../src/frontend.js";
 import { handleBrowserIcon } from "../src/browser-icons.js";
+import { handleInterfaceAsset } from "../src/interface-assets.js";
 import { BROWSER_ICONS } from "../src/browser-icons.generated.js";
 import previewWorker from "../src/interface-preview.js";
 import {
   RAMONE_INTERFACE_CSS,
+  RAMONE_INTERFACE_FONT_ASSETS,
+  RAMONE_INTERFACE_FONT_CSS,
   RAMONE_INTERFACE_SHA256,
   RAMONE_INTERFACE_VERSION,
 } from "../src/interface-bundle.generated.js";
@@ -18,7 +21,7 @@ const indexSource = fs.readFileSync("src/index.js", "utf8");
 const wrangler = fs.readFileSync("wrangler.toml", "utf8");
 const previewWrangler = fs.readFileSync("wrangler.interface-preview.toml", "utf8");
 const previewWorkflow = fs.readFileSync(".github/workflows/interface-preview.yml", "utf8");
-const bundleRoot = "assets/interface/v0.1.1";
+const bundleRoot = "assets/interface/v0.2.0";
 
 function sha256(path) {
   return crypto.createHash("sha256").update(fs.readFileSync(path)).digest("hex");
@@ -258,11 +261,18 @@ describe("Ramone estate shell", () => {
     const manifest = JSON.parse(
       fs.readFileSync(`${bundleRoot}/manifest.json`, "utf8"),
     );
-    expect(RAMONE_INTERFACE_VERSION).toBe("0.1.1");
+    expect(RAMONE_INTERFACE_VERSION).toBe("0.2.0");
     expect(manifest.contract_version).toBe("2.0.0");
     expect(Object.keys(manifest.files).sort()).toEqual([
+      "atlas-fonts.css",
       "atlas-interface-kit.css",
       "components.json",
+      "fonts/dm-serif-display-400-italic.woff2",
+      "fonts/dm-serif-display-400.woff2",
+      "fonts/ibm-plex-mono-400.woff2",
+      "fonts/ibm-plex-mono-500.woff2",
+      "licenses/DM-Serif-Display-OFL.txt",
+      "licenses/IBM-Plex-Mono-OFL.txt",
       "tokens.json",
     ]);
     for (const [name, record] of Object.entries(manifest.files)) {
@@ -272,10 +282,27 @@ describe("Ramone estate shell", () => {
     expect(RAMONE_INTERFACE_SHA256).toBe(
       manifest.files["atlas-interface-kit.css"].sha256,
     );
-    expect(RAMONE_INTERFACE_CSS).toContain("Atlas Interface Kit v0.1.1");
+    expect(RAMONE_INTERFACE_CSS).toContain("Atlas Interface Kit v0.2.0");
     expect(RAMONE_INTERFACE_CSS).toContain(".atlas-global-header");
     expect(RAMONE_INTERFACE_CSS).toContain(".atlas-bottom-nav");
     expect(RAMONE_INTERFACE_CSS).not.toMatch(/https?:\/\//);
+    expect(RAMONE_INTERFACE_FONT_CSS).toContain("@font-face");
+    expect(RAMONE_INTERFACE_FONT_CSS).toContain("/assets/interface/fonts/");
+    expect(rendered).not.toMatch(/fonts\.(googleapis|gstatic)\.com/);
+  });
+
+  it("serves the generated interface fonts with immutable fingerprints", async () => {
+    const routes = Object.keys(RAMONE_INTERFACE_FONT_ASSETS);
+    expect(routes).toHaveLength(4);
+    expect(handleInterfaceAsset("/assets/interface/fonts/not-found.woff2")).toBeNull();
+    for (const route of routes) {
+      const response = handleInterfaceAsset(route);
+      expect(response).toBeInstanceOf(Response);
+      expect(response.headers.get("content-type")).toBe("font/woff2");
+      expect(response.headers.get("cache-control")).toContain("immutable");
+      expect(response.headers.get("x-atlas-interface-sha256")).toMatch(/^[a-f0-9]{64}$/);
+      expect((await response.arrayBuffer()).byteLength).toBeGreaterThan(0);
+    }
   });
 
   it("serves only generated local browser icons", async () => {

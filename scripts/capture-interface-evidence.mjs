@@ -175,7 +175,7 @@ function assertEvidence(evidence, opening, browserName, viewportName) {
   }
   if (evidence.h1Count !== 1) values.push(`${prefix}: expected one h1, found ${evidence.h1Count}`);
   if (evidence.mainCount !== 1) values.push(`${prefix}: expected one main, found ${evidence.mainCount}`);
-  if (evidence.interfaceVersion !== "0.1.1") values.push(`${prefix}: Interface Kit version is not 0.1.1`);
+  if (evidence.interfaceVersion !== "0.2.0") values.push(`${prefix}: Interface Kit version is not 0.2.0`);
   if (!/^[a-f0-9]{64}$/.test(evidence.interfaceSha256 || "")) values.push(`${prefix}: Interface Kit fingerprint is missing`);
   if (evidence.statusText !== "asleep") values.push(`${prefix}: Ramone's asleep state is not explicit`);
   if (!evidence.availabilityText.includes("SPECULAR-CORE is currently offline.")) values.push(`${prefix}: offline explanation is missing`);
