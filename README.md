@@ -127,6 +127,12 @@ origin enforcement, rate-limit math, the atlas-notify event shape, the public
 interface shell, its pinned design-system bundle, offline behavior, temporary
 session ownership, streaming source treatment, and isolated preview boundaries.
 
+## Interface conformance
+
+Phase G adds a read-only product-surface declaration and pinned Atlas Infra
+validation without changing inference or edge behaviour. See
+[`docs/PHASE-G-INTERFACE-CONFORMANCE.md`](docs/PHASE-G-INTERFACE-CONFORMANCE.md).
+
 ## How it fits into Atlas Systems
 
 `ramone-edge` is the bounded public gateway between the Atlas Systems web surface and local Ramone services. The edge layer owns browser-facing validation, rate limiting, wake-state checks, and streaming transport while local inference stays behind the tunnel.
