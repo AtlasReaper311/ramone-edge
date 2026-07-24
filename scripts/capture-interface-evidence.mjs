@@ -61,7 +61,7 @@ async function openWithRetry(page, url) {
       }
       await page.waitForSelector("#machine-availability", { timeout: 15_000 });
       await page.waitForFunction(
-        () => document.querySelector("#state-text")?.textContent.includes("offline"),
+        () => document.querySelector("#state-text")?.textContent === "asleep",
         { timeout: 15_000 },
       );
       await page.evaluate(() => document.fonts?.ready || Promise.resolve());
