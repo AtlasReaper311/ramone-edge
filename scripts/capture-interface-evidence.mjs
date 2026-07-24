@@ -64,6 +64,11 @@ async function openWithRetry(page, url) {
         () => document.querySelector("#state-text")?.textContent === "asleep",
         { timeout: 15_000 },
       );
+      await page.waitForFunction(
+        () => document.querySelector("#ramone-greeting-name")?.textContent === "Ramone.",
+        { timeout: 15_000 },
+      );
+      await page.waitForSelector(".ramone-musing.is-visible", { timeout: 15_000 });
       await page.evaluate(() => document.fonts?.ready || Promise.resolve());
       return;
     } catch (error) {
@@ -72,6 +77,36 @@ async function openWithRetry(page, url) {
     }
   }
   throw lastError;
+}
+
+async function inspectOpening(page) {
+  return page.evaluate(() => {
+    const viewportHeight = window.innerHeight;
+    const rect = (selector) => {
+      const element = document.querySelector(selector);
+      const bounds = element?.getBoundingClientRect();
+      return bounds ? {
+        top: Math.round(bounds.top),
+        bottom: Math.round(bounds.bottom),
+        left: Math.round(bounds.left),
+        right: Math.round(bounds.right),
+        height: Math.round(bounds.height),
+      } : null;
+    };
+    return {
+      viewportHeight,
+      workspace: rect("#ramone-workspace"),
+      stage: rect(".ramone-stage"),
+      boundary: rect(".ramone-boundary"),
+      hero: rect(".ramone-intro"),
+      topology: rect(".ramone-knowledge-flow"),
+      composer: rect("#composer"),
+      greeting: document.querySelector("#ramone-title")?.textContent.trim(),
+      mode: document.querySelector("#ramone-workspace")?.dataset.mode,
+      musingVisible: document.querySelector(".ramone-musing")?.classList.contains("is-visible"),
+      composerInOpeningViewport: (rect("#composer")?.top ?? viewportHeight + 1) < viewportHeight,
+    };
+  });
 }
 
 async function inspect(page) {
@@ -117,12 +152,19 @@ async function inspect(page) {
       starterHidden: document.querySelector("#starter-prompts")?.hidden,
       sourceCards: document.querySelectorAll("details.source-card").length,
       openSourceCards: document.querySelectorAll("details.source-card[open]").length,
+      workspaceMode: document.querySelector("#ramone-workspace")?.dataset.mode,
+      modeLabel: document.querySelector("#ramone-mode-label")?.textContent,
+      activityText: document.querySelector("#ramone-activity-text")?.textContent,
+      personalityResponses: [...document.querySelectorAll(".entry-meta")]
+        .filter((item) => item.textContent.includes("personality response · local · no evidence"))
+        .length,
+      heroHeight: Math.round(document.querySelector(".ramone-intro")?.getBoundingClientRect().height || 0),
       targetFailures: targets.filter((target) => target.width < 44 || target.height < 44),
     };
   });
 }
 
-function assertEvidence(evidence, browserName, viewportName) {
+function assertEvidence(evidence, opening, browserName, viewportName) {
   const prefix = `${browserName}/${viewportName}`;
   const expectedRoutes = ["Work", "Writing", "Lab", "Systems", "About"];
   const mobileExpected = Number(viewportName) < 768;
@@ -145,6 +187,16 @@ function assertEvidence(evidence, browserName, viewportName) {
   if (!evidence.starterHidden) values.push(`${prefix}: starter questions did not recede after conversation began`);
   if (evidence.sourceCards !== 2) values.push(`${prefix}: expected two source cards, found ${evidence.sourceCards}`);
   if (evidence.openSourceCards !== 1) values.push(`${prefix}: source card did not expand`);
+  if (evidence.workspaceMode !== "conversation") values.push(`${prefix}: workspace did not settle into conversation mode`);
+  if (evidence.modeLabel !== "Grounded local AI // conversation") values.push(`${prefix}: compact conversation identity is missing`);
+  if (evidence.personalityResponses !== 1) values.push(`${prefix}: asleep local personality response was not rendered exactly once`);
+  if (opening.mode !== "idle") values.push(`${prefix}: opening workspace was not idle`);
+  if (!opening.musingVisible) values.push(`${prefix}: opening musing was not visible`);
+  if (!String(opening.greeting || "").includes("Hi, I'm Ramone.")) values.push(`${prefix}: typed greeting did not complete`);
+  if (evidence.heroHeight >= opening.hero.height) values.push(`${prefix}: greeting did not condense when the conversation began`);
+  if (Number(viewportName) >= 1024 && !opening.composerInOpeningViewport) values.push(`${prefix}: composer is not visible in the opening laptop viewport`);
+  if (Number(viewportName) >= 1024 && opening.boundary.right > opening.stage.left) values.push(`${prefix}: desktop knowledge rail is not left of the conversation stage`);
+  if (Number(viewportName) < 768 && opening.boundary.top < opening.stage.bottom) values.push(`${prefix}: mobile knowledge boundary did not follow the interaction`);
   if (evidence.targetFailures.length) values.push(`${prefix}: controls below 44px ${JSON.stringify(evidence.targetFailures)}`);
   return values;
 }
@@ -156,6 +208,7 @@ async function runCase(context, browserName, viewportName) {
 
   try {
     await openWithRetry(page, new URL("/", base).toString());
+    const opening = await inspectOpening(page);
     await page.screenshot({
       path: `screenshots/${browserName}-${viewportName}-offline.png`,
       fullPage: Number(viewportName) >= 768,
@@ -182,6 +235,14 @@ async function runCase(context, browserName, viewportName) {
     await sourceCards.first().locator("summary").click();
     await page.waitForSelector("details.source-card[open]");
 
+    await page.getByLabel("Ask Ramone a question").fill("Do you ever get bored?");
+    await page.getByRole("button", { name: "transmit" }).click();
+    await page.waitForFunction(
+      () => [...document.querySelectorAll(".entry-meta")]
+        .some((item) => item.textContent.includes("personality response · local · no evidence")),
+      { timeout: 15_000 },
+    );
+
     const semantics = await inspect(page);
     const accessibility = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -190,7 +251,7 @@ async function runCase(context, browserName, viewportName) {
     const blocking = violations.filter(
       (item) => item.impact === "serious" || item.impact === "critical",
     );
-    const caseFailures = assertEvidence(semantics, browserName, viewportName);
+    const caseFailures = assertEvidence(semantics, opening, browserName, viewportName);
     if (pageErrors.length) caseFailures.push(`${browserName}/${viewportName}: page errors ${JSON.stringify(pageErrors)}`);
     if (blocking.length) caseFailures.push(`${browserName}/${viewportName}: serious accessibility findings ${JSON.stringify(blocking)}`);
 
@@ -202,6 +263,7 @@ async function runCase(context, browserName, viewportName) {
     report.push({
       browser: browserName,
       viewport: viewportName,
+      opening,
       semantics,
       pageErrors,
       accessibilityViolations: violations,

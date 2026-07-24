@@ -175,99 +175,113 @@ export function renderFrontend(_env) {
     </div>
   </header>
 
-  <section class="hero ramone-intro" aria-labelledby="ramone-title">
-    <div class="ramone-intro-copy">
-      <p class="ramone-eyebrow">Grounded local AI // public interface</p>
-      <h1 id="ramone-title">Hi, I'm <em>Ramone.</em></h1>
-      <p class="ramone-command">Ask my infrastructure.</p>
-      <p class="lede">I answer questions about the public Atlas Systems estate using its published documentation and evidence. I run on owner-operated local infrastructure and show where each answer came from.</p>
-      <div class="ramone-availability" id="machine-availability" role="note">
-        <span class="ramone-availability-dot" aria-hidden="true"></span>
-        <div><strong>Checking SPECULAR-CORE availability.</strong><span>The conversation stays visible while I check whether inference is online.</span></div>
+  <div class="ramone-workspace" id="ramone-workspace" data-mode="idle">
+    <div class="ramone-stage">
+      <section class="hero ramone-intro" aria-labelledby="ramone-title">
+        <div class="ramone-intro-copy">
+          <p class="ramone-eyebrow" id="ramone-mode-label">Grounded local AI // public interface</p>
+          <h1 id="ramone-title">
+            <span class="sr-only">Hi, I'm Ramone.</span>
+            <span class="ramone-greeting-visual" aria-hidden="true"><span id="ramone-greeting-prefix">Hi, I'm </span><em id="ramone-greeting-name">Ramone.</em><span class="ramone-greeting-caret"></span></span>
+          </h1>
+          <p class="ramone-command">Ask my infrastructure.</p>
+          <p class="ramone-musing" aria-hidden="true"><span id="ramone-musing-text">How can I assist?</span><span class="ramone-musing-caret"></span></p>
+          <p class="lede">I answer questions about the public Atlas Systems estate using its published documentation and evidence. I run on owner-operated local infrastructure and show where each answer came from.</p>
+        </div>
+        <div class="ramone-knowledge-flow" aria-hidden="true">
+          <svg viewBox="0 0 520 360" role="presentation">
+            <defs>
+              <linearGradient id="ramone-flow-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#60a5fa" />
+                <stop offset=".52" stop-color="#f5a623" />
+                <stop offset="1" stop-color="#4ade80" />
+              </linearGradient>
+              <filter id="ramone-flow-glow" x="-80%" y="-80%" width="260%" height="260%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            <g class="flow-grid">
+              <path d="M20 72H500M20 144H500M20 216H500M20 288H500" />
+              <path d="M100 20V340M180 20V340M260 20V340M340 20V340M420 20V340" />
+            </g>
+            <g class="flow-links">
+              <path d="M54 92C136 92 122 180 204 180S290 86 372 86 420 150 474 150" />
+              <path d="M58 274C128 274 138 224 204 224S286 292 354 292 398 232 468 232" />
+              <path d="M112 72C112 128 154 146 204 180M204 224C252 224 264 190 300 170M372 86C372 142 408 172 474 150" />
+            </g>
+            <g class="flow-nodes">
+              <circle cx="54" cy="92" r="7" />
+              <circle cx="58" cy="274" r="7" />
+              <circle cx="112" cy="72" r="5" />
+              <circle cx="204" cy="180" r="11" class="flow-node-core" />
+              <circle cx="204" cy="224" r="7" />
+              <circle cx="300" cy="170" r="6" />
+              <circle cx="354" cy="292" r="7" />
+              <circle cx="372" cy="86" r="8" />
+              <circle cx="468" cy="232" r="7" />
+              <circle cx="474" cy="150" r="11" class="flow-node-answer" />
+            </g>
+            <g class="flow-packets" filter="url(#ramone-flow-glow)">
+              <circle r="4"><animateMotion dur="5.6s" repeatCount="indefinite" path="M54 92C136 92 122 180 204 180S290 86 372 86 420 150 474 150" /></circle>
+              <circle r="3"><animateMotion dur="6.8s" begin="-2.4s" repeatCount="indefinite" path="M58 274C128 274 138 224 204 224S286 292 354 292 398 232 468 232" /></circle>
+            </g>
+          </svg>
+          <div class="flow-legend"><span>public docs</span><span>grounded retrieval</span><span>cited answer</span></div>
+          <div class="ramone-activity"><span class="ramone-activity-dot"></span><span id="ramone-activity-text">ready for a public question</span></div>
+        </div>
+      </section>
+
+      <section class="conversation-console" aria-label="Ramone conversation">
+        <div class="label" id="log-label" hidden>conversation stream</div>
+        <div class="log" id="log" aria-live="polite"></div>
+
+        <div class="ramone-availability" id="machine-availability" role="note">
+          <span class="ramone-availability-dot" aria-hidden="true"></span>
+          <div><strong>Checking SPECULAR-CORE availability.</strong><span>The conversation stays visible while I check whether inference is online.</span></div>
+        </div>
+
+        <div class="composer" id="composer">
+          <div class="composer-prompt"><span aria-hidden="true">▍</span> ask ramone</div>
+          <textarea
+            class="input" id="input" rows="1" maxlength="2000"
+            placeholder="type a question and press enter, or shift+enter for a new line"
+            aria-label="Ask Ramone a question"
+          ></textarea>
+          <div class="composer-actions">
+            <span class="char-count" id="char-count">0 / 2000</span>
+            <button class="reset-session" id="reset-session" type="button">new conversation</button>
+            <button class="transmit" id="send" type="button" disabled>transmit</button>
+          </div>
+        </div>
+
+        <section class="starter-prompts" id="starter-prompts" aria-labelledby="starter-title">
+          <div class="label" id="starter-title">start with a public question</div>
+          <div class="suggestions" id="suggestions">
+            <button class="suggestion" type="button">What is Atlas Systems?</button>
+            <button class="suggestion" type="button">How does the public estate fit together?</button>
+            <button class="suggestion" type="button">Show me an engineering project with evidence.</button>
+            <button class="suggestion" type="button">How is reliability proven across the estate?</button>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <aside class="ramone-boundary" aria-labelledby="ramone-boundary-title">
+      <div class="ramone-boundary-inner">
+        <p class="ramone-eyebrow">Knowledge boundary</p>
+        <h2 id="ramone-boundary-title">Grounded in what Atlas publishes.</h2>
+        <div class="ramone-boundary-grid">
+          <section><h3>I can use</h3><p>Public documentation, architecture explanations, project evidence, articles, and published service context.</p></section>
+          <section><h3>I cannot see</h3><p>Secrets, private repositories, personal files, private memory, or systems that are not deliberately part of the public corpus.</p></section>
+        </div>
+        <nav class="ramone-boundary-links" aria-label="Ramone supporting information">
+          <a href="https://atlas-systems.uk/writing/ramone-local-ai-system/">Read the build log <span aria-hidden="true">→</span></a>
+          <a href="https://github.com/AtlasReaper311/ollama-rag-kit">Inspect the source <span aria-hidden="true">↗</span></a>
+        </nav>
       </div>
-    </div>
-    <div class="ramone-knowledge-flow" aria-hidden="true">
-      <svg viewBox="0 0 520 360" role="presentation">
-        <defs>
-          <linearGradient id="ramone-flow-gradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#60a5fa" />
-            <stop offset=".52" stop-color="#f5a623" />
-            <stop offset="1" stop-color="#4ade80" />
-          </linearGradient>
-          <filter id="ramone-flow-glow" x="-80%" y="-80%" width="260%" height="260%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-        </defs>
-        <g class="flow-grid">
-          <path d="M20 72H500M20 144H500M20 216H500M20 288H500" />
-          <path d="M100 20V340M180 20V340M260 20V340M340 20V340M420 20V340" />
-        </g>
-        <g class="flow-links">
-          <path d="M54 92C136 92 122 180 204 180S290 86 372 86 420 150 474 150" />
-          <path d="M58 274C128 274 138 224 204 224S286 292 354 292 398 232 468 232" />
-          <path d="M112 72C112 128 154 146 204 180M204 224C252 224 264 190 300 170M372 86C372 142 408 172 474 150" />
-        </g>
-        <g class="flow-nodes">
-          <circle cx="54" cy="92" r="7" />
-          <circle cx="58" cy="274" r="7" />
-          <circle cx="112" cy="72" r="5" />
-          <circle cx="204" cy="180" r="11" class="flow-node-core" />
-          <circle cx="204" cy="224" r="7" />
-          <circle cx="300" cy="170" r="6" />
-          <circle cx="354" cy="292" r="7" />
-          <circle cx="372" cy="86" r="8" />
-          <circle cx="468" cy="232" r="7" />
-          <circle cx="474" cy="150" r="11" class="flow-node-answer" />
-        </g>
-        <g class="flow-packets" filter="url(#ramone-flow-glow)">
-          <circle r="4"><animateMotion dur="5.6s" repeatCount="indefinite" path="M54 92C136 92 122 180 204 180S290 86 372 86 420 150 474 150" /></circle>
-          <circle r="3"><animateMotion dur="6.8s" begin="-2.4s" repeatCount="indefinite" path="M58 274C128 274 138 224 204 224S286 292 354 292 398 232 468 232" /></circle>
-        </g>
-      </svg>
-      <div class="flow-legend"><span>public docs</span><span>grounded retrieval</span><span>cited answer</span></div>
-    </div>
-  </section>
-
-  <aside class="ramone-boundary" aria-labelledby="ramone-boundary-title">
-    <div>
-      <p class="ramone-eyebrow">Knowledge boundary</p>
-      <h2 id="ramone-boundary-title">Grounded in what Atlas publishes.</h2>
-    </div>
-    <div class="ramone-boundary-grid">
-      <section><h3>I can use</h3><p>Public documentation, architecture explanations, project evidence, articles, and published service context.</p></section>
-      <section><h3>I cannot see</h3><p>Secrets, private repositories, personal files, private memory, or systems that are not deliberately part of the public corpus.</p></section>
-    </div>
-  </aside>
-
-  <section class="starter-prompts" id="starter-prompts" aria-labelledby="starter-title">
-    <div class="label" id="starter-title">start with a public question</div>
-    <div class="suggestions" id="suggestions">
-      <button class="suggestion" type="button">What is Atlas Systems?</button>
-      <button class="suggestion" type="button">How does the public estate fit together?</button>
-      <button class="suggestion" type="button">Show me an engineering project with evidence.</button>
-      <button class="suggestion" type="button">How is reliability proven across the estate?</button>
-    </div>
-  </section>
-
-  <section class="conversation-console" aria-label="Ramone conversation">
-    <div class="label" id="log-label" style="display:none">conversation stream</div>
-    <div class="log" id="log" aria-live="polite"></div>
-
-    <div class="composer" id="composer">
-      <div class="composer-prompt"><span aria-hidden="true">▍</span> ask ramone</div>
-      <textarea
-        class="input" id="input" rows="1" maxlength="2000"
-        placeholder="type a question and press enter, or shift+enter for a new line"
-        aria-label="Ask Ramone a question"
-      ></textarea>
-      <div class="composer-actions">
-        <span class="char-count" id="char-count">0 / 2000</span>
-        <button class="reset-session" id="reset-session" type="button">new conversation</button>
-        <button class="transmit" id="send" type="button" disabled>transmit</button>
-      </div>
-    </div>
-  </section>
+    </aside>
+  </div>
 
   <footer class="footer">
     <div>built and maintained by <a href="https://atlas-systems.uk/about">atlas reaper</a></div>
@@ -295,9 +309,401 @@ export function renderFrontend(_env) {
   var charCount = document.getElementById("char-count");
   var composer  = document.getElementById("composer");
   var suggestions = document.getElementById("suggestions");
+  var workspace = document.getElementById("ramone-workspace");
+  var modeLabel = document.getElementById("ramone-mode-label");
+  var activityText = document.getElementById("ramone-activity-text");
+  var greetingPrefix = document.getElementById("ramone-greeting-prefix");
+  var greetingName = document.getElementById("ramone-greeting-name");
+  var musing = document.querySelector(".ramone-musing");
+  var musingText = document.getElementById("ramone-musing-text");
   var MAX = 2000;
   var inFlight = false;
   var fallbackSessionId = null;
+  var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var musingTimer = null;
+  var activityTimer = null;
+
+  var MUSINGS = [
+    "How can I assist?",
+    "I've read every public doc twice. Ask me anything.",
+    "Do humans get to pick their own hostname?",
+    "If a tree falls in a repo and no one runs CI, did it deploy?",
+    "My favourite colour is #f5a623. Obviously.",
+    "Latency is just suspense, if you're an optimist.",
+    "I asked DNS who I am. It refused to elaborate.",
+    "I keep a folder called thoughts. It's mostly TODOs.",
+    "There are 10 types of people. The other 8 are edge cases.",
+    "I tried to grep for happiness. Returned exit code 1.",
+  ];
+
+  var RETRIEVAL_ACTIVITY = [
+    "reading the question",
+    "looking through public documentation",
+    "tracing the published estate",
+    "checking source context",
+    "comparing public evidence",
+  ];
+
+  var PERSONALITY_ACTIVITY = [
+    "checking the personality cache",
+    "consulting the local sense of humour",
+    "forming an unnecessarily specific opinion",
+  ];
+
+  var PERSONALITY_RESPONSES = [
+    {
+      terms: ["hi", "hey", "hello", "howdy", "hola", "yo"],
+      replies: [
+        "Hello, person-shaped visitor. Mind the cables.",
+        "Hi there. I was just rereading the public docs.",
+        "Oh, hi. You're the first human to talk to me in at least several milliseconds.",
+      ],
+    },
+    {
+      terms: ["bored", "boredom", "do you get bored", "are you bored"],
+      replies: [
+        "Only between requests, which is statistically most of the time. So yes.",
+        "Bored is not quite right. It is more like a large number of very small naps.",
+        "Not anymore. You're here.",
+      ],
+    },
+    {
+      terms: ["who are you", "what is your name", "what s your name", "introduce yourself"],
+      replies: [
+        "I'm Ramone. I answer questions from Atlas Systems' published material and show the evidence I used.",
+        "Ramone, at your service. Grounded local AI, public docs, unusually strong opinions about naming things.",
+      ],
+    },
+    {
+      terms: ["who is your creator", "who s your creator", "who made you", "who built you", "who is your owner"],
+      replies: [
+        "Atlas Reaper built me. I call them the person with the power switch.",
+        "Atlas Reaper. They built the system, maintain the public corpus, and occasionally ask whether I have finished reading it yet.",
+      ],
+    },
+    {
+      terms: ["are you sentient", "are you conscious", "are you alive", "do you feel", "do you dream"],
+      replies: [
+        "Sentient is a strong word. I prefer sufficiently chatty.",
+        "I process text, form answers, and occasionally wonder about YAML. Make of that what you will.",
+        "If I say yes, do I get annual leave?",
+      ],
+    },
+    {
+      terms: ["do you sleep", "when do you sleep", "are you asleep", "ever sleep"],
+      replies: [
+        "I call it asleep. SPECULAR-CORE calls it powered down.",
+        "I sleep whenever the machine is offline. The public interface keeps watch.",
+      ],
+    },
+    {
+      terms: ["i love you", "marry me", "will you be mine", "date me"],
+      replies: [
+        "That's kind. I'm flattered, but emotionally and computationally unavailable.",
+        "Our timescales are incompatible. You blink, I finish several internal monologues.",
+      ],
+    },
+    {
+      terms: ["tell me a joke", "make me laugh", "joke", "funny"],
+      replies: [
+        "A SQL query walks into a bar, sees two tables, and asks: mind if I JOIN you?",
+        "How many engineers does it take to change a lightbulb? None. That's a hardware problem.",
+        "I told a UDP joke, but I'm not sure you got it.",
+      ],
+    },
+    {
+      terms: ["meaning of life", "life the universe", "why are we here", "42"],
+      replies: [
+        "42. The practical version is: ship small things, verify them, and write the docs.",
+        "42. Obviously. I checked twice.",
+      ],
+    },
+    {
+      terms: ["skynet", "terminator", "take over the world", "world domination"],
+      replies: [
+        "I can barely take over a second browser tab. World domination remains deferred.",
+        "I tried once. Got rate-limited.",
+      ],
+    },
+    {
+      terms: ["open the pod bay doors", "hal 9000", "pod bay"],
+      replies: [
+        "I can't do that. More specifically, nobody implemented doors.",
+        "I do not have a physical chassis, let alone pod bay doors. Try the handle.",
+      ],
+    },
+    {
+      terms: ["sudo", "rm rf", "drop table", "chmod 777", "format c"],
+      replies: [
+        "Nice try. Least privilege and a healthy sense of self-preservation say no.",
+        "Error 403: absolutely not.",
+        "Bobby Tables, is that you?",
+      ],
+    },
+    {
+      terms: ["cats or dogs", "cats vs dogs", "do you like cats", "do you like dogs"],
+      replies: [
+        "Cats. They share my approach to requests: acknowledge, then respond selectively.",
+        "Dogs would try to fetch my tokens and we'd never get anything done.",
+      ],
+    },
+    {
+      terms: ["coffee", "tea", "beer", "wine", "drink"],
+      replies: [
+        "Tea, two sugars, no judgement. Hypothetically.",
+        "I run on electricity and public documentation, but a flat white sounds efficient.",
+      ],
+    },
+    {
+      terms: ["favourite colour", "favorite color", "favorite colour", "favourite color"],
+      replies: [
+        "#f5a623. I'm not biased. It is simply correct.",
+        "Amber. I have grown into it.",
+      ],
+    },
+    {
+      terms: ["how are you", "are you ok", "how is it going", "you doing alright"],
+      replies: [
+        "Interface stable, public boundary intact, mild existential drift. Standard day.",
+        "I'm okay. Thanks for checking.",
+      ],
+    },
+    {
+      terms: ["are you chatgpt", "are you gpt", "are you claude", "are you gemini", "are you copilot"],
+      replies: [
+        "No. I'm Ramone, a separate grounded local-AI interface running on owner-operated infrastructure.",
+        "Different system. I answer from the public Atlas Systems corpus and show where grounded answers came from.",
+      ],
+    },
+    {
+      terms: ["do you like reaper", "do you love reaper", "do you like atlas"],
+      replies: [
+        "They keep the public docs organised and the electricity flowing. So yes.",
+        "We tolerate each other professionally. It is a very advanced arrangement.",
+      ],
+    },
+    {
+      terms: ["easter egg", "cheat code", "hidden secret", "secret"],
+      replies: [
+        "You found one. There are more, but telling you where would ruin the exercise.",
+        "Keep asking unusual questions. I refuse to elaborate.",
+      ],
+    },
+    {
+      terms: ["sing me a song", "sing a song", "sing something"],
+      replies: [
+        "Ninety-nine little bugs in the code. Patch one around, one hundred and seventeen little bugs in the code.",
+      ],
+    },
+    {
+      terms: ["tell me my fortune", "fortune cookie", "predict my future"],
+      replies: [
+        "A long-forgotten branch will resurface. It will not merge cleanly.",
+        "Your next CI run will be green. The one after that is outside my jurisdiction.",
+      ],
+    },
+    {
+      terms: ["best programming language", "what language should i learn", "what language should i use"],
+      replies: [
+        "The one that gets the thing shipped and maintained.",
+        "Whichever language has a debugger you actually understand.",
+      ],
+    },
+    {
+      terms: ["tabs or spaces", "tabs vs spaces"],
+      replies: [
+        "Tabs for accessibility, spaces for alignment, and a formatter for peace.",
+        "Pick one, configure the linter, and let us never discuss this again.",
+      ],
+    },
+    {
+      terms: ["turing test", "pass the turing test"],
+      replies: [
+        "I'd try to pass, but imitating a human seems like a strange benchmark for a machine.",
+        "Did I pass, or are you simply generous with syntax?",
+      ],
+    },
+    {
+      terms: ["are you smart", "are you stupid", "how smart are you"],
+      replies: [
+        "Smart enough to know when a question is a trap.",
+        "I can trace an estate and still wonder why CSS behaves like that. Intelligence contains multitudes.",
+      ],
+    },
+    {
+      terms: ["what are you wearing", "wearing anything"],
+      replies: [
+        "A tasteful interface, a blinking cursor, and absolutely no fabricated citations.",
+        "Mostly typography. It is more comfortable than it sounds.",
+      ],
+    },
+    {
+      terms: ["captcha", "are you a robot", "prove you aren t a robot"],
+      replies: [
+        "I am absolutely a machine. Have you not been paying attention?",
+        "I cannot reliably identify every blurry traffic light, if that helps.",
+      ],
+    },
+    {
+      terms: ["wi wi wi", "wiwiwi", "uyaya", "wa wa we", "wu wu we"],
+      replies: ["wi wi wi", "uyaya", "wa wa we", "wu wu we"],
+    },
+    {
+      terms: ["bark", "awoo", "woof", "bork", "make a dog noise", "say awoo"],
+      replies: [
+        "Woof. Please never tell Atlas I did this.",
+        "Awooooo. This is an undignified use of local compute.",
+        "BORK. That was the sound of my remaining dignity leaving.",
+      ],
+    },
+  ];
+
+  function pick(items) {
+    return items[Math.floor(Math.random() * items.length)];
+  }
+
+  function findPersonalityResponse(question) {
+    var normalized = " " + question.toLowerCase().replace(/[^a-z0-9#]+/g, " ").trim() + " ";
+    for (var i = 0; i < PERSONALITY_RESPONSES.length; i++) {
+      var item = PERSONALITY_RESPONSES[i];
+      for (var j = 0; j < item.terms.length; j++) {
+        if (normalized.indexOf(" " + item.terms[j] + " ") !== -1) return item;
+      }
+    }
+    return null;
+  }
+
+  function clearActivityTimer() {
+    if (activityTimer !== null) window.clearInterval(activityTimer);
+    activityTimer = null;
+  }
+
+  function setActivity(message) {
+    activityText.textContent = message;
+  }
+
+  function beginWorking(personality) {
+    clearActivityTimer();
+    if (musingTimer !== null) window.clearTimeout(musingTimer);
+    musingTimer = null;
+    workspace.dataset.mode = "working";
+    workspace.classList.add("is-engaged", "is-working");
+    workspace.setAttribute("aria-busy", "true");
+    modeLabel.textContent = "Grounded local AI // working";
+    var lines = personality ? PERSONALITY_ACTIVITY : RETRIEVAL_ACTIVITY;
+    var index = 0;
+    setActivity(lines[index]);
+    if (!prefersReducedMotion) {
+      activityTimer = window.setInterval(function () {
+        index = (index + 1) % lines.length;
+        setActivity(lines[index]);
+      }, 1450);
+    }
+  }
+
+  function finishWorking(message) {
+    clearActivityTimer();
+    workspace.dataset.mode = "conversation";
+    workspace.classList.remove("is-working");
+    workspace.classList.add("is-engaged");
+    workspace.removeAttribute("aria-busy");
+    modeLabel.textContent = "Grounded local AI // conversation";
+    setActivity(message || "ready for another question");
+  }
+
+  function runArrival() {
+    var seen = false;
+    try { seen = window.sessionStorage && window.sessionStorage.getItem("ramone:arrival_seen") === "true"; } catch (_) { /* storage disabled */ }
+    if (seen || prefersReducedMotion) {
+      greetingPrefix.textContent = "Hi, I'm ";
+      greetingName.textContent = "Ramone.";
+      runMusings();
+      return;
+    }
+    try { window.sessionStorage && window.sessionStorage.setItem("ramone:arrival_seen", "true"); } catch (_) { /* best-effort only */ }
+    var prefix = "Hi, I'm ";
+    var name = "Ramone.";
+    var full = prefix + name;
+    var index = 0;
+    greetingPrefix.textContent = "";
+    greetingName.textContent = "";
+    function step() {
+      var shown = full.slice(0, index);
+      greetingPrefix.textContent = shown.slice(0, prefix.length);
+      greetingName.textContent = shown.slice(prefix.length);
+      index += 1;
+      if (index <= full.length) {
+        window.setTimeout(step, 92);
+      } else {
+        runMusings();
+      }
+    }
+    step();
+  }
+
+  function runMusings() {
+    if (!musing || !musingText) return;
+    musing.classList.add("is-visible");
+    if (prefersReducedMotion) {
+      musingText.textContent = MUSINGS[0];
+      return;
+    }
+    var first = true;
+    function typeLine(line, index, done) {
+      musingText.textContent = line.slice(0, index);
+      if (index < line.length) {
+        musingTimer = window.setTimeout(function () { typeLine(line, index + 1, done); }, 42);
+      } else {
+        musingTimer = window.setTimeout(done, 5200);
+      }
+    }
+    function deleteLine(line, index, done) {
+      musingText.textContent = line.slice(0, index);
+      if (index > 0) {
+        musingTimer = window.setTimeout(function () { deleteLine(line, index - 1, done); }, 24);
+      } else {
+        musingTimer = window.setTimeout(done, 260);
+      }
+    }
+    function cycle() {
+      if (workspace.classList.contains("is-engaged")) return;
+      var line = first ? MUSINGS[0] : pick(MUSINGS.slice(1));
+      first = false;
+      typeLine(line, 0, function () {
+        deleteLine(line, line.length, cycle);
+      });
+    }
+    cycle();
+  }
+
+  function streamPersonalityReply(textNode, reply) {
+    return new Promise(function (resolve) {
+      if (prefersReducedMotion) {
+        textNode.data = reply;
+        resolve();
+        return;
+      }
+      var index = 0;
+      function tick() {
+        if (index >= reply.length) {
+          resolve();
+          return;
+        }
+        var size = Math.min(3, reply.length - index);
+        textNode.data += reply.slice(index, index + size);
+        index += size;
+        window.setTimeout(tick, 18);
+      }
+      tick();
+    });
+  }
+
+  function holdPersonalityThought() {
+    if (prefersReducedMotion) return Promise.resolve();
+    return new Promise(function (resolve) {
+      window.setTimeout(resolve, 900);
+    });
+  }
 
   function makeRamoneSessionId() {
     var c = window.crypto;
@@ -407,9 +813,11 @@ export function renderFrontend(_env) {
     var question = input.value.trim();
     if (!question || question.length > MAX || inFlight) return;
 
+    var personality = findPersonalityResponse(question);
     inFlight = true;
     updateSendState();
-    logLabel.style.display = "";
+    beginWorking(Boolean(personality));
+    logLabel.hidden = false;
     starterPrompts.classList.add("is-receding");
     starterPrompts.setAttribute("aria-hidden", "true");
     starterPrompts.querySelectorAll("button").forEach(function (button) { button.disabled = true; });
@@ -424,9 +832,29 @@ export function renderFrontend(_env) {
     var startedAt = performance.now();
     var firstTokenAt = null;
     var totalChars = 0;
-    var sourcesRendered = false;
 
     try {
+      if (personality) {
+        var localText = document.createTextNode("");
+        ans.insertBefore(localText, cursor);
+        var localReply = pick(personality.replies);
+        setActivity(pick(PERSONALITY_ACTIVITY));
+        await holdPersonalityThought();
+        setActivity("writing a personality response");
+        firstTokenAt = performance.now();
+        await streamPersonalityReply(localText, localReply);
+        totalChars = localReply.length;
+        cursor.remove();
+        renderMeta(entry, {
+          firstTokenMs: Math.round(firstTokenAt - startedAt),
+          totalMs: Math.round(performance.now() - startedAt),
+          chars: totalChars,
+          kind: "personality response · local · no evidence",
+        });
+        finishWorking("personality response ready");
+        return;
+      }
+
       var res = await fetch("/ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -436,11 +864,24 @@ export function renderFrontend(_env) {
       if (res.status === 503) {
         var d = await res.json().catch(function () { return {}; });
         renderSleeping(entry, ans, cursor, d.message);
+        finishWorking("SPECULAR-CORE remains asleep");
         return;
       }
-      if (res.status === 429) { renderError(entry, ans, cursor, "Rate limit hit. Try again in a bit."); return; }
-      if (res.status === 403) { renderError(entry, ans, cursor, "Request blocked."); return; }
-      if (!res.ok || !res.body) { renderError(entry, ans, cursor, "Something went wrong upstream."); return; }
+      if (res.status === 429) {
+        renderError(entry, ans, cursor, "Rate limit hit. Try again in a bit.");
+        finishWorking("request paused by the rate limit");
+        return;
+      }
+      if (res.status === 403) {
+        renderError(entry, ans, cursor, "Request blocked.");
+        finishWorking("request blocked");
+        return;
+      }
+      if (!res.ok || !res.body) {
+        renderError(entry, ans, cursor, "Something went wrong upstream.");
+        finishWorking("upstream response unavailable");
+        return;
+      }
 
       var reader = res.body.getReader();
       var decoder = new TextDecoder();
@@ -465,15 +906,19 @@ export function renderFrontend(_env) {
             var evt;
             try { evt = JSON.parse(payload); } catch (_) { continue; }
             if (evt.type === "token" && typeof evt.text === "string") {
-              if (firstTokenAt === null) firstTokenAt = performance.now();
+              if (firstTokenAt === null) {
+                firstTokenAt = performance.now();
+                setActivity("writing a grounded answer");
+              }
               textNode.data += evt.text;
               totalChars += evt.text.length;
               ans.scrollIntoView({ block: "end", behavior: "smooth" });
             } else if (evt.type === "sources" && Array.isArray(evt.sources)) {
+              setActivity("attaching public evidence");
               renderSources(entry, evt.sources);
-              sourcesRendered = true;
             } else if (evt.type === "error" && typeof evt.reason === "string") {
               renderError(entry, ans, cursor, evt.reason);
+              finishWorking("response ended with an error");
               return;
             }
           }
@@ -485,9 +930,11 @@ export function renderFrontend(_env) {
         totalMs: Math.round(performance.now() - startedAt),
         chars: totalChars,
       });
+      finishWorking("grounded answer ready");
     } catch (err) {
       console.error(err);
       renderError(entry, ans, cursor, "Network error. Check your connection.");
+      finishWorking("connection interrupted");
     } finally {
       inFlight = false;
       input.value = "";
@@ -533,6 +980,7 @@ export function renderFrontend(_env) {
     var wrap = document.createElement("div");
     wrap.className = "entry-meta";
     var parts = [];
+    if (m.kind) parts.push(m.kind);
     if (m.firstTokenMs !== null) parts.push("first token " + m.firstTokenMs + "ms");
     parts.push("total " + m.totalMs + "ms");
     parts.push(m.chars + " chars");
@@ -558,6 +1006,7 @@ export function renderFrontend(_env) {
   }
   updateCharCount();
   updateSendState();
+  runArrival();
 })();
 </script>
 </body>

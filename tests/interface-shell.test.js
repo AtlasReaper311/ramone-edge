@@ -77,8 +77,30 @@ describe("Ramone estate shell", () => {
     expect(rendered.match(/<main>/g)).toHaveLength(1);
     expect(rendered.match(/<\/main>/g)).toHaveLength(1);
     expect(rendered.match(/<h1\b/g)).toHaveLength(1);
-    expect(rendered).toContain('<h1 id="ramone-title">Hi, I\'m <em>Ramone.</em></h1>');
+    expect(rendered).toContain('<span class="sr-only">Hi, I\'m Ramone.</span>');
+    expect(rendered).toContain('id="ramone-greeting-prefix">Hi, I\'m </span>');
+    expect(rendered).toContain('id="ramone-greeting-name">Ramone.</em>');
     expect(rendered).toContain('<p class="ramone-command">Ask my infrastructure.</p>');
+  });
+
+  it("presents one integrated workspace with conversation first and a responsive knowledge rail", () => {
+    expect(rendered).toContain('class="ramone-workspace" id="ramone-workspace" data-mode="idle"');
+    expect(rendered).toContain('class="ramone-stage"');
+    expect(rendered).toContain('class="ramone-boundary" aria-labelledby="ramone-boundary-title"');
+    expect(rendered.indexOf('class="ramone-stage"')).toBeLessThan(
+      rendered.indexOf('class="ramone-boundary"'),
+    );
+    expect(rendered.indexOf('id="machine-availability"')).toBeLessThan(
+      rendered.indexOf('class="composer" id="composer"'),
+    );
+    expect(rendered.indexOf('class="composer" id="composer"')).toBeLessThan(
+      rendered.indexOf('class="starter-prompts"'),
+    );
+    expect(rendered).toContain('grid-template-areas: "boundary stage"');
+    expect(rendered).toContain('grid-template-areas: "stage" "boundary"');
+    expect(rendered).toContain('class="ramone-boundary-links"');
+    expect(rendered).toContain("Read the build log");
+    expect(rendered).toContain("Inspect the source");
   });
 
   it("removes token streaming from the live region and announces completion once", () => {
@@ -131,6 +153,43 @@ describe("Ramone estate shell", () => {
     expect(rendered).toContain(".atlas-search-trigger kbd { color: var(--atlas-text-faint)");
     expect(rendered).toContain('var KEY = "ramone:session_id"');
     expect(rendered).toContain('window.localStorage.removeItem("ramone:session_id")');
+  });
+
+  it("makes Ramone visibly work on a request without replacing the interface", () => {
+    expect(rendered).toContain('workspace.dataset.mode = "working"');
+    expect(rendered).toContain('workspace.classList.add("is-engaged", "is-working")');
+    expect(rendered).toContain('modeLabel.textContent = "Grounded local AI // working"');
+    expect(rendered).toContain('"looking through public documentation"');
+    expect(rendered).toContain('"checking source context"');
+    expect(rendered).toContain('setActivity("writing a grounded answer")');
+    expect(rendered).toContain('setActivity("attaching public evidence")');
+    expect(rendered).toContain('workspace.dataset.mode = "conversation"');
+    expect(rendered).toContain('modeLabel.textContent = "Grounded local AI // conversation"');
+    expect(rendered).toContain(".ramone-workspace.is-engaged .ramone-intro");
+  });
+
+  it("types the arrival once per browser session and keeps reduced motion static", () => {
+    expect(rendered).toContain('window.sessionStorage.getItem("ramone:arrival_seen")');
+    expect(rendered).toContain('window.sessionStorage.setItem("ramone:arrival_seen", "true")');
+    expect(rendered).toContain('var prefix = "Hi, I\'m "');
+    expect(rendered).toContain("if (seen || prefersReducedMotion)");
+    expect(rendered).toContain("runMusings()");
+    expect(rendered).toContain(".ramone-greeting-caret");
+    expect(rendered).toContain(".ramone-musing-caret");
+  });
+
+  it("curates local personality responses without presenting fabricated evidence", () => {
+    expect(rendered).toContain("var PERSONALITY_RESPONSES = [");
+    expect(rendered).toContain("findPersonalityResponse(question)");
+    expect(rendered).toContain("if (personality)");
+    expect(rendered).toContain("await streamPersonalityReply(localText, localReply)");
+    expect(rendered).toContain('kind: "personality response · local · no evidence"');
+    expect(rendered).toContain('"easter egg"');
+    expect(rendered).toContain('"wi wi wi"');
+    expect(rendered).toContain('"bark"');
+    expect(rendered).not.toContain("ramone/manners.md");
+    expect(rendered).not.toContain("ramone/joke-book.md");
+    expect(rendered).not.toContain("hardware/specs.json");
   });
 
   it("keeps Atlas-owned links same-tab and external links safe", () => {

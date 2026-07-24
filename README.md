@@ -67,6 +67,12 @@ The browser surface is a polished chat product expressed through the Atlas
 terminal/console visual language. It introduces Ramone personally, retains the
 “Ask my infrastructure.” command, explains the public knowledge boundary, and
 keeps the full conversation interface visible when SPECULAR-CORE is offline.
+The opening is one integrated workspace: a desktop knowledge rail sits beside
+the greeting, animated topology, availability notice, composer, and starter
+questions. The greeting types once per browser session, a separate musing line
+retains Ramone's character, and the workspace visibly condenses into retrieval
+activity when a question is submitted. Curated local personality responses work
+while Ramone is asleep and are explicitly labelled as having no evidence.
 
 The accepted Atlas Interface Kit is vendored under
 `assets/interface/v0.1.1/`, verified against its manifest, and embedded into

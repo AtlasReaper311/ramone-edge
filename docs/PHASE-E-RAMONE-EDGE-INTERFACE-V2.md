@@ -105,6 +105,23 @@ The owner resolved the Phase E product-expression choices as follows:
    visually expressive identity, with a complete reduced-motion fallback.
 8. The existing temporary session and `new conversation` model remains; browser
    conversation history is deferred.
+9. The opening surface is one integrated workspace rather than a sequence of
+   introduction, boundary, and conversation cards:
+   - desktop places the public knowledge boundary in a left rail;
+   - the greeting, topology, availability, composer, and starter prompts share
+     the primary interaction stage;
+   - smaller viewports keep the interaction before the supporting boundary;
+   - build-log and source links remain available in the boundary and footer.
+10. `Hi, I'm Ramone.` types once per browser session. `Ask my infrastructure.`
+    remains stable, with a separate rotating type-and-delete musing below it.
+11. Submitting a question moves the same workspace into a purposeful working
+    state. The introduction condenses, the topology becomes retrieval activity,
+    and bounded public-safe activity messages show that Ramone is investigating
+    the request before the workspace settles into conversation mode.
+12. Curated public-safe Lab Easter eggs are local personality responses. They
+    remain available while SPECULAR-CORE is asleep, are labelled
+    `personality response · local · no evidence`, do not call `/ask`, and never
+    create fabricated source cards.
 
 The Lab Ramone treatment is the quality and atmosphere reference, but the
 standalone product keeps its own composition rather than copying the Lab card.
@@ -142,6 +159,13 @@ The exact pull-request head must pass:
    memory, KV, service bindings, or production routes;
 9. screenshots and machine-readable evidence retained for 14 days and tied to
    the exact commit.
+10. opening-workspace evidence that proves the composer is visible in the 1024
+    and 1440px laptop viewports, the desktop boundary is a left rail, the mobile
+    boundary follows the interaction, the greeting completes, and the musing is
+    visible;
+11. conversation evidence that proves the workspace condenses into conversation
+    mode and one local personality response works while the fixture reports
+    Ramone asleep without adding evidence cards.
 
 ## Rollout gate
 

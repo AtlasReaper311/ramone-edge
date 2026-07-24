@@ -57,23 +57,45 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   .ramone-product-name { color: var(--text); font-size: var(--atlas-type-supporting); font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
   body { font-size: var(--atlas-type-body); }
   .shell { width: min(1180px, 100%); max-width: 1180px; }
+  .label[hidden] { display: none; }
   main { min-width: 0; }
+  .ramone-workspace {
+    display: grid;
+    grid-template-columns: minmax(238px,.31fr) minmax(0,1fr);
+    grid-template-areas: "boundary stage";
+    margin-bottom: var(--atlas-space-7);
+    overflow: clip;
+    border: 1px solid var(--atlas-border);
+    border-radius: var(--atlas-radius-lg);
+    background: var(--atlas-bg-1);
+    box-shadow: var(--atlas-shadow-flagship), 0 36px 100px -56px rgba(0,0,0,.95);
+  }
+  .ramone-stage {
+    grid-area: stage;
+    min-width: 0;
+    border-left: 1px solid var(--atlas-border);
+    background:
+      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+      var(--atlas-bg-1);
+    background-size: 100% 40px;
+  }
   .ramone-intro {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(330px, .92fr);
+    grid-template-columns: minmax(0,1.12fr) minmax(300px,.88fr);
     align-items: center;
-    gap: clamp(32px, 6vw, 80px);
-    min-height: 520px;
-    margin: 0 0 var(--atlas-space-7);
-    padding: clamp(32px, 6vw, 72px);
+    gap: clamp(24px,4vw,48px);
+    min-height: 370px;
+    margin: 0;
+    padding: clamp(24px,3.2vw,40px);
     overflow: hidden;
-    border: 1px solid var(--atlas-border);
-    border-radius: var(--atlas-radius-lg);
+    border-bottom: 1px solid var(--atlas-border);
     background:
       radial-gradient(80% 120% at 88% 50%, rgba(245,166,35,.1), transparent 62%),
-      linear-gradient(145deg, rgba(26,26,36,.96), rgba(10,10,15,.94));
-    box-shadow: var(--atlas-shadow-flagship), 0 36px 100px -56px rgba(0,0,0,.95);
+      linear-gradient(145deg, rgba(26,26,36,.82), rgba(10,10,15,.76));
+    transition:
+      min-height var(--atlas-motion-reveal) var(--atlas-easing-standard),
+      padding var(--atlas-motion-reveal) var(--atlas-easing-standard);
   }
   .ramone-intro::before {
     content: "";
@@ -99,13 +121,27 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   .hero.ramone-intro h1 {
     max-width: 680px;
     margin: 0;
-    font-size: clamp(3rem, 7vw, 5.8rem);
+    font-size: clamp(3rem,5.5vw,4.8rem);
     line-height: .96;
     letter-spacing: -.025em;
+    transition: font-size var(--atlas-motion-reveal) var(--atlas-easing-standard);
   }
   .hero.ramone-intro h1 em {
     text-shadow: 0 0 42px rgba(245,166,35,.28);
   }
+  .ramone-greeting-visual { display: inline; }
+  .ramone-greeting-caret,
+  .ramone-musing-caret {
+    display: inline-block;
+    width: .48ch;
+    height: .82em;
+    margin-left: .1em;
+    background: var(--atlas-accent);
+    box-shadow: 0 0 14px rgba(245,166,35,.72);
+    transform: translateY(.08em);
+    animation: ramone-caret-blink 1.05s steps(2,start) infinite;
+  }
+  @keyframes ramone-caret-blink { 50% { opacity: 0; } }
   .ramone-command {
     margin: var(--atlas-space-4) 0 0;
     color: var(--atlas-text);
@@ -113,18 +149,39 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
     letter-spacing: .01em;
   }
   .ramone-command::before { content: "> "; color: var(--atlas-accent); }
+  .ramone-musing {
+    min-height: 1.7em;
+    margin: var(--atlas-space-2) 0 0;
+    color: var(--atlas-accent);
+    font-size: var(--atlas-type-supporting);
+    opacity: 0;
+    text-shadow: 0 0 16px rgba(245,166,35,.2);
+    transition:
+      opacity var(--atlas-motion-reveal) var(--atlas-easing-standard),
+      max-height var(--atlas-motion-reveal) var(--atlas-easing-standard),
+      margin var(--atlas-motion-reveal) var(--atlas-easing-standard);
+  }
+  .ramone-musing.is-visible { opacity: 1; }
+  .ramone-musing-caret { width: .52ch; height: 1.02em; margin-left: 2px; vertical-align: -.12em; }
   .hero.ramone-intro .lede {
     max-width: 650px;
-    margin-top: var(--atlas-space-5);
+    max-height: 18rem;
+    margin-top: var(--atlas-space-4);
+    overflow: hidden;
     color: var(--atlas-text-dim);
     font-size: var(--atlas-type-body);
     line-height: 1.75;
+    opacity: 1;
+    transition:
+      opacity var(--atlas-motion-reveal) var(--atlas-easing-standard),
+      max-height var(--atlas-motion-reveal) var(--atlas-easing-standard),
+      margin var(--atlas-motion-reveal) var(--atlas-easing-standard);
   }
   .ramone-availability {
     display: flex;
     align-items: flex-start;
     gap: var(--atlas-space-3);
-    margin-top: var(--atlas-space-5);
+    margin: 0 0 var(--atlas-space-4);
     border-left: 2px solid var(--atlas-unavailable);
     padding: var(--atlas-space-3) var(--atlas-space-4);
     background: color-mix(in srgb, var(--atlas-unavailable) 6%, transparent);
@@ -151,15 +208,23 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   .ramone-availability strong { color: var(--atlas-text); font-size: var(--atlas-type-supporting); font-weight: 500; }
   .ramone-availability div > span { margin-top: 3px; color: var(--atlas-text-dim); font-size: var(--atlas-type-meta); line-height: 1.55; }
   .ramone-knowledge-flow {
-    min-height: 390px;
+    min-height: 285px;
+    overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--atlas-accent) 24%, transparent);
     border-radius: var(--atlas-radius-lg);
     background:
       radial-gradient(circle at 40% 45%, rgba(245,166,35,.11), transparent 28%),
       rgba(7,7,12,.62);
     box-shadow: inset 0 0 60px rgba(0,0,0,.36);
+    transition: min-height var(--atlas-motion-reveal) var(--atlas-easing-standard);
   }
-  .ramone-knowledge-flow svg { display: block; width: 100%; min-height: 350px; overflow: visible; }
+  .ramone-knowledge-flow svg {
+    display: block;
+    width: 100%;
+    height: 220px;
+    overflow: visible;
+    transition: height var(--atlas-motion-reveal) var(--atlas-easing-standard);
+  }
   .flow-grid path { fill: none; stroke: rgba(255,255,255,.055); stroke-width: 1; }
   .flow-links path {
     fill: none;
@@ -196,59 +261,106 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
     text-transform: uppercase;
   }
   @keyframes ramone-flow-drift { to { stroke-dashoffset: -78; } }
-  .ramone-boundary {
-    display: grid;
-    grid-template-columns: minmax(220px,.72fr) minmax(0,1.28fr);
-    gap: var(--atlas-space-6);
-    margin-bottom: var(--atlas-space-7);
-    border: 1px solid var(--atlas-border);
-    border-radius: var(--atlas-radius-md);
-    padding: var(--atlas-card-editorial);
-    background: var(--atlas-bg-1);
+  @keyframes ramone-working-node {
+    0%,100% { opacity: .72; }
+    50% { opacity: 1; }
   }
+  .ramone-activity {
+    display: flex;
+    min-height: 36px;
+    align-items: center;
+    gap: var(--atlas-space-2);
+    margin: 0 var(--atlas-space-3) var(--atlas-space-3);
+    border-top: 1px solid var(--atlas-border);
+    padding: var(--atlas-space-2) 0 0;
+    color: var(--atlas-text-faint);
+    font-size: var(--atlas-type-meta);
+    letter-spacing: .04em;
+  }
+  .ramone-activity-dot {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    background: var(--atlas-text-faint);
+  }
+  .ramone-workspace.is-working .ramone-activity { color: var(--atlas-accent); }
+  .ramone-workspace.is-working .ramone-activity-dot {
+    background: var(--atlas-accent);
+    box-shadow: 0 0 10px rgba(245,166,35,.66);
+    animation: pulse 1.1s ease-in-out infinite;
+  }
+  .ramone-workspace.is-working .flow-links path { animation-duration: 2.4s; opacity: .78; }
+  .ramone-workspace.is-working .flow-node-core,
+  .ramone-workspace.is-working .flow-node-answer { animation: ramone-working-node 1.2s ease-in-out infinite; }
+  .ramone-boundary {
+    grid-area: boundary;
+    min-width: 0;
+    padding: var(--atlas-space-6) var(--atlas-space-5);
+    background:
+      linear-gradient(180deg,rgba(26,26,36,.62),rgba(17,17,24,.94)),
+      var(--atlas-bg-1);
+  }
+  .ramone-boundary-inner { position: sticky; top: calc(64px + var(--atlas-space-4)); }
   .ramone-boundary h2 {
     margin: 0;
     color: var(--atlas-text);
     font-family: var(--atlas-font-display);
-    font-size: clamp(1.75rem,3vw,2.4rem);
+    font-size: clamp(1.65rem,2.4vw,2rem);
     font-weight: 400;
-    line-height: 1.05;
+    line-height: 1.1;
   }
-  .ramone-boundary-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--atlas-space-3); }
-  .ramone-boundary-grid section { border: 1px solid var(--atlas-border); padding: var(--atlas-card-compact); background: var(--atlas-bg-2); }
+  .ramone-boundary-grid { display: grid; gap: var(--atlas-space-3); margin-top: var(--atlas-space-5); }
+  .ramone-boundary-grid section {
+    border: 1px solid var(--atlas-border);
+    border-left-color: color-mix(in srgb,var(--atlas-accent) 44%,var(--atlas-border));
+    padding: var(--atlas-card-compact);
+    background: var(--atlas-bg-2);
+  }
   .ramone-boundary-grid h3 { margin: 0; color: var(--atlas-accent); font-size: var(--atlas-type-meta); letter-spacing: .1em; text-transform: uppercase; }
   .ramone-boundary-grid p { margin: var(--atlas-space-3) 0 0; color: var(--atlas-text-dim); font-size: var(--atlas-type-supporting); line-height: 1.7; }
+  .ramone-boundary-links {
+    display: grid;
+    gap: 1px;
+    margin-top: var(--atlas-space-5);
+    background: var(--atlas-border);
+  }
+  .ramone-boundary-links a {
+    min-height: var(--atlas-touch-min);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--atlas-space-2);
+    padding: var(--atlas-space-3);
+    background: var(--atlas-bg-1);
+    color: var(--atlas-text-dim);
+    font-size: var(--atlas-type-meta);
+  }
+  .ramone-boundary-links a:hover,
+  .ramone-boundary-links a:focus-visible { color: var(--atlas-text); text-decoration: none; }
   .starter-prompts {
     max-height: 380px;
-    margin-bottom: var(--atlas-space-6);
+    margin-top: var(--atlas-space-4);
     opacity: 1;
     overflow: hidden;
     transform: translateY(0);
     transition: opacity var(--atlas-motion-reveal) var(--atlas-easing-standard), transform var(--atlas-motion-reveal) var(--atlas-easing-standard), max-height var(--atlas-motion-reveal) var(--atlas-easing-standard), margin var(--atlas-motion-reveal) var(--atlas-easing-standard);
   }
   .starter-prompts[hidden] { display: none; }
-  .starter-prompts.is-receding { max-height: 0; margin-bottom: 0; opacity: 0; transform: translateY(-8px); }
+  .starter-prompts.is-receding { max-height: 0; margin: 0; opacity: 0; transform: translateY(-8px); }
   .suggestions { gap: var(--atlas-space-3); }
   .suggestion {
     min-height: var(--atlas-touch-min);
     border-radius: var(--atlas-radius-sm);
-    padding: var(--atlas-space-4);
+    padding: var(--atlas-space-3) var(--atlas-space-4);
     font-size: var(--atlas-type-supporting);
     line-height: 1.55;
   }
   .conversation-console {
     position: relative;
-    margin-top: var(--atlas-space-7);
-    border: 1px solid var(--atlas-border);
-    border-radius: var(--atlas-radius-lg);
-    padding: clamp(16px,4vw,32px);
-    background:
-      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-      var(--atlas-bg-1);
-    background-size: 100% 40px;
-    box-shadow: 0 26px 80px -60px rgba(0,0,0,.95);
+    padding: clamp(20px,3vw,32px);
   }
-  .log:not(:empty) { margin-bottom: var(--atlas-space-6); }
+  .log:not(:empty) { margin: 0 0 var(--atlas-space-6); }
   .entry {
     border-left-color: color-mix(in srgb, var(--atlas-accent) 38%, var(--atlas-border));
     padding-left: var(--atlas-space-5);
@@ -295,6 +407,8 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   }
   .composer {
     bottom: var(--atlas-space-4);
+    z-index: var(--atlas-z-sticky);
+    margin-top: 0;
     border-radius: var(--atlas-radius-md);
     padding: var(--atlas-card-compact);
     box-shadow: 0 18px 50px rgba(0,0,0,.34);
@@ -305,6 +419,30 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   button.transmit { min-height: var(--atlas-touch-min); border-radius: var(--atlas-radius-sm); padding-inline: var(--atlas-space-4); }
   .entry-meta,
   .char-count { color: var(--atlas-text-faint); font-size: var(--atlas-type-meta); }
+  .ramone-workspace.is-engaged .ramone-intro {
+    grid-template-columns: minmax(0,1fr) minmax(260px,320px);
+    min-height: 210px;
+    padding-block: var(--atlas-space-5);
+  }
+  .ramone-workspace.is-engaged .hero.ramone-intro h1 { font-size: clamp(2rem,3.4vw,2.8rem); }
+  .ramone-workspace.is-engaged .ramone-command {
+    margin-top: var(--atlas-space-2);
+    font-size: var(--atlas-type-body);
+  }
+  .ramone-workspace.is-engaged .ramone-musing {
+    max-height: 0;
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+    opacity: 0;
+  }
+  .ramone-workspace.is-engaged .hero.ramone-intro .lede {
+    max-height: 0;
+    margin-top: 0;
+    opacity: 0;
+  }
+  .ramone-workspace.is-engaged .ramone-knowledge-flow { min-height: 170px; }
+  .ramone-workspace.is-engaged .ramone-knowledge-flow svg { height: 108px; }
   .footer.atlas-footer { max-width: none; padding-inline: 0; }
   .atlas-search-root { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: start center; padding: min(12vh,7rem) 16px 16px; }
   .atlas-search-root[hidden] { display: none; }
@@ -323,6 +461,17 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   body.atlas-search-open { overflow: hidden; }
   :where(a,button,textarea,input,[tabindex]):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  @media (max-width: 900px) {
+    .ramone-workspace {
+      grid-template-columns: minmax(0,1fr);
+      grid-template-areas: "stage" "boundary";
+    }
+    .ramone-stage { border-left: 0; }
+    .ramone-boundary { border-top: 1px solid var(--atlas-border); }
+    .ramone-boundary-inner { position: static; }
+    .ramone-boundary-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .ramone-boundary-links { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  }
   @media (max-width: 767px) {
     .ramone-global-header { grid-template-columns: minmax(0,1fr) auto; }
     .ramone-global-header .atlas-global-header__actions { display: flex; }
@@ -333,13 +482,21 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
     .ramone-intro {
       grid-template-columns: minmax(0,1fr);
       min-height: 0;
-      gap: var(--atlas-space-6);
+      gap: var(--atlas-space-5);
       padding: var(--atlas-card-standard);
     }
-    .ramone-knowledge-flow { min-height: 300px; }
-    .ramone-knowledge-flow svg { min-height: 270px; }
-    .ramone-boundary { grid-template-columns: minmax(0,1fr); padding: var(--atlas-card-standard); }
+    .hero.ramone-intro h1 { font-size: clamp(3rem,14vw,4.2rem); }
+    .ramone-knowledge-flow { min-height: 250px; }
+    .ramone-knowledge-flow svg { height: 182px; }
+    .ramone-boundary { padding: var(--atlas-card-standard); }
     .ramone-boundary-grid { grid-template-columns: minmax(0,1fr); }
+    .ramone-boundary-links { grid-template-columns: minmax(0,1fr); }
+    .ramone-workspace.is-engaged .ramone-intro {
+      grid-template-columns: minmax(0,1fr);
+      min-height: 0;
+    }
+    .ramone-workspace.is-engaged .ramone-knowledge-flow { min-height: 168px; }
+    .ramone-workspace.is-engaged .ramone-knowledge-flow svg { height: 104px; }
     .suggestions { grid-template-columns: minmax(0,1fr); }
     .entry-sources { grid-template-columns: minmax(0,1fr); }
     .composer { bottom: calc(64px + env(safe-area-inset-bottom) + var(--atlas-space-3)); }
@@ -358,6 +515,15 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   @media (max-width: 420px) {
     .atlas-estate-status-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
     .atlas-estate-status { width: var(--atlas-touch-min); justify-content: center; padding: 0; }
+    .shell { padding-inline: var(--atlas-space-3); }
+    .ramone-product-strip { margin-bottom: var(--atlas-space-4); }
+    .ramone-intro,
+    .conversation-console,
+    .ramone-boundary { padding-inline: var(--atlas-space-4); }
+    .hero.ramone-intro h1 { font-size: clamp(2.7rem,14vw,3.6rem); }
+    .hero.ramone-intro .lede { line-height: 1.65; }
+    .flow-legend span { padding-inline: 2px; letter-spacing: .03em; }
+    .entry { padding-left: var(--atlas-space-3); }
     .composer-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--atlas-space-2); }
     .composer-actions .char-count { grid-column: 1 / -1; margin-right: 0; }
     .composer-actions button { width: 100%; padding-inline: var(--atlas-space-2); }
@@ -367,6 +533,8 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
     *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
     .flow-packets { display: none; }
     .flow-links path { animation: none; stroke-dashoffset: 0; }
+    .ramone-greeting-caret,
+    .ramone-musing-caret { opacity: .68; }
   }
 `;
 
@@ -579,8 +747,8 @@ export function renderFrontend(env) {
     '<div class="ramone-product-identity"><strong class="ramone-product-name">Ramone</strong><span class="atlas-badge atlas-badge--maturity">Production</span></div>',
   );
   html = html.replace(
-    '</header>\n\n  <section class="hero ramone-intro"',
-    '</section>\n\n  <main>\n  <section class="hero ramone-intro"',
+    '</header>\n\n  <div class="ramone-workspace"',
+    '</section>\n\n  <main>\n  <div class="ramone-workspace"',
   );
   html = html.replace("\n  <footer class=\"footer\">", "\n  </main>\n\n  <footer class=\"footer atlas-footer\">");
   html = html.replace(
