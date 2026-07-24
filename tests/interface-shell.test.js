@@ -43,6 +43,8 @@ describe("Ramone estate shell", () => {
     expect(rendered).toContain('class="atlas-bottom-nav ramone-bottom-nav"');
     expect(rendered).toContain('class="topbar atlas-product-strip ramone-product-strip"');
     expect(rendered).toContain("data-estate-search-open");
+    expect(rendered).toContain('root.id = "atlas-estate-search"');
+    expect(rendered).toContain('input.id = "atlas-estate-search-input"');
     expect(rendered).toContain('data-state="checking"');
     expect(rendered).toContain(">Checking</span>");
     expect(rendered).toContain('<link rel="canonical" href="https://ramone.atlas-systems.uk/"');

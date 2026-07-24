@@ -488,11 +488,11 @@ const SHELL_SCRIPT = `<script>
   }
 
   function buildSearch() {
-    var root = document.createElement("div"); root.className = "atlas-search-root"; root.hidden = true;
+    var root = document.createElement("div"); root.id = "atlas-estate-search"; root.className = "atlas-search-root"; root.hidden = true;
     var scrim = document.createElement("button"); scrim.type = "button"; scrim.className = "atlas-search-scrim"; scrim.setAttribute("aria-label", "Close estate search");
     var panel = document.createElement("section"); panel.className = "atlas-search-panel"; panel.setAttribute("role", "dialog"); panel.setAttribute("aria-modal", "true"); panel.setAttribute("aria-label", "Search the Atlas Systems estate");
     var heading = document.createElement("p"); heading.className = "atlas-search-heading"; heading.textContent = "ATLAS ESTATE // search";
-    var input = document.createElement("input"); input.className = "atlas-search-input"; input.type = "search"; input.maxLength = 500; input.placeholder = "search the estate…"; input.autocomplete = "off"; input.setAttribute("aria-label", "Search query");
+    var input = document.createElement("input"); input.id = "atlas-estate-search-input"; input.className = "atlas-search-input"; input.type = "search"; input.maxLength = 500; input.placeholder = "search the estate…"; input.autocomplete = "off"; input.setAttribute("aria-label", "Search query");
     var status = document.createElement("p"); status.className = "atlas-search-status"; status.setAttribute("aria-live", "polite"); status.textContent = "type at least two characters";
     var results = document.createElement("ol"); results.className = "atlas-search-results";
     var close = document.createElement("button"); close.className = "atlas-search-close"; close.type = "button"; close.textContent = "Close";
