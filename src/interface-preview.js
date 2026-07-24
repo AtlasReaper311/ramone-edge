@@ -1,4 +1,5 @@
 import { handleBrowserIcon } from "./browser-icons.js";
+import { handleInterfaceAsset } from "./interface-assets.js";
 import { renderFrontend } from "./frontend.js";
 import { secureResponse } from "./security.js";
 
@@ -19,6 +20,8 @@ export default {
     const url = new URL(request.url);
     const icon = handleBrowserIcon(url.pathname);
     if (icon) return withHeaders(icon);
+    const interfaceAsset = handleInterfaceAsset(url.pathname);
+    if (interfaceAsset) return withHeaders(interfaceAsset);
 
     if (url.pathname === "/status") {
       return withHeaders(Response.json({

@@ -14,7 +14,8 @@ inference, memory, transport, security, or service-contract redesign.
 
 - Governance: `AtlasReaper311/atlas-infra` accepted ADR-0008 and
   `policy/public-interface-system-v2.json`
-- Shared implementation: repository-local Atlas Interface Kit v0.1.1
+- Shared implementation: repository-local Atlas Interface Kit v0.2.0 with
+  self-hosted typefaces and pinned licence files
 - Public edge behaviour: this repository's `src/index.js`, `src/ask.js`,
   `src/status.js`, `src/ratelimit.js`, and `src/cors.js`
 - Product interaction: this repository's existing streaming conversation,
@@ -72,7 +73,8 @@ The phase must not:
 
 ### Visual and responsive foundation
 
-- Pin Atlas Interface Kit v0.1.1 inside this repository and verify its manifest
+- Pin Atlas Interface Kit v0.2.0 inside this repository and verify its
+  recursive manifest, font assets, and licence files
   fingerprints.
 - Keep Ramone's stronger product typography and expressive character while
   using the shared spacing, type, focus, touch, state, z-index, and
