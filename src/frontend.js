@@ -49,7 +49,7 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   .atlas-search-trigger { display: inline-flex; align-items: center; gap: 7px; min-height: var(--atlas-touch-min); padding: 5px 11px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font: inherit; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
   .atlas-search-trigger:hover, .atlas-search-trigger:focus-visible { color: var(--text); border-color: var(--border-hi); }
   .atlas-search-trigger svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-  .atlas-search-trigger kbd { color: var(--text-faint); font: inherit; font-size: 8px; }
+  .atlas-search-trigger kbd { color: var(--atlas-text-faint); font: inherit; font-size: var(--atlas-type-tiny); }
   .shell { padding-top: 28px; }
   .topbar { border-radius: 0; }
   .ramone-product-strip { max-width: none; margin: 0 0 var(--atlas-space-6); }
@@ -304,7 +304,7 @@ const SHELL_CSS = `${RAMONE_INTERFACE_CSS}
   button.reset-session,
   button.transmit { min-height: var(--atlas-touch-min); border-radius: var(--atlas-radius-sm); padding-inline: var(--atlas-space-4); }
   .entry-meta,
-  .char-count { font-size: var(--atlas-type-meta); }
+  .char-count { color: var(--atlas-text-faint); font-size: var(--atlas-type-meta); }
   .footer.atlas-footer { max-width: none; padding-inline: 0; }
   .atlas-search-root { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: start center; padding: min(12vh,7rem) 16px 16px; }
   .atlas-search-root[hidden] { display: none; }

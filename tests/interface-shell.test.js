@@ -126,6 +126,8 @@ describe("Ramone estate shell", () => {
     expect(rendered).toContain('starterPrompts.classList.add("is-receding")');
     expect(rendered).toContain('document.createElement("details")');
     expect(rendered).toContain('card.className = "source-card"');
+    expect(rendered).toContain(".char-count { color: var(--atlas-text-faint)");
+    expect(rendered).toContain(".atlas-search-trigger kbd { color: var(--atlas-text-faint)");
     expect(rendered).toContain('var KEY = "ramone:session_id"');
     expect(rendered).toContain('window.localStorage.removeItem("ramone:session_id")');
   });
