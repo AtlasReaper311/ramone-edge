@@ -22,7 +22,9 @@ on:
       - "src/frontend-core.js"
       - "src/interface-bundle.generated.js"
       - "src/interface-preview.js"
+      - "src/security.js"
       - "tests/interface-shell.test.js"
+      - "tests/security.test.js"
       - "wrangler.interface-preview.toml"
 
 permissions:
