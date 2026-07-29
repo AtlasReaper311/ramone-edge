@@ -18,7 +18,7 @@
 
 import { handleAsk } from "./ask.js";
 import { handleStatus } from "./status.js";
-import { renderFrontend } from "./frontend.js";
+import { renderFrontend } from "./frontend-phase6.js";
 import { handleBrowserIcon } from "./browser-icons.js";
 import { handleInterfaceAsset } from "./interface-assets.js";
 import { corsHeaders, handlePreflight } from "./cors.js";
@@ -59,43 +59,45 @@ async function routeRequest(request, env, ctx) {
     if (meta) return meta;
 
     if (request.method === "OPTIONS") {
-      return handlePreflight(request, env);
+        return handlePreflight();
     }
 
-    try {
-      if (request.method === "GET" && url.pathname === "/") {
+    if (url.pathname === "/.well-known/security.txt") {
+        if (request.method !== "GET" && request.method !== "HEAD") {
+            return new Response("Method not allowed", {
+                status: 405,
+                headers: { allow: "GET, HEAD" },
+            });
+        }
+        return new Response(request.method === "HEAD" ? null : SECURITY_TEXT, {
+            headers: {
+                "content-type": "text/plain; charset=utf-8",
+                "cache-control": "public, max-age=86400",
+            },
+        });
+    }
+
+    if (url.pathname === "/" && request.method === "GET") {
         return new Response(renderFrontend(env), {
-          headers: {
-            "content-type": "text/html; charset=utf-8",
-            "cache-control": "public, max-age=300",
-            "x-content-type-options": "nosniff",
-            "referrer-policy": "no-referrer",
-          },
+            headers: {
+                "content-type": "text/html; charset=utf-8",
+                "cache-control": "public, max-age=300",
+            },
         });
-      }
-
-      if (request.method === "GET" && url.pathname === "/.well-known/security.txt") {
-        return new Response(SECURITY_TEXT, {
-          headers: {
-            "content-type": "text/plain; charset=utf-8",
-            "cache-control": "public, max-age=3600",
-          },
-        });
-      }
-
-      if (request.method === "GET" && url.pathname === "/status") {
-        return handleStatus(request, env, ctx);
-      }
-
-      if (request.method === "POST" && url.pathname === "/ask") {
-        return handleAsk(request, env, ctx);
-      }
-
-      return json({ error: "not_found" }, 404, request, env);
-    } catch (err) {
-      console.error("unhandled error:", err && err.stack ? err.stack : err);
-      return json({ error: "internal_error" }, 500, request, env);
     }
+
+    if (url.pathname === "/status" && request.method === "GET") {
+        return handleStatus(env, ctx);
+    }
+
+    if (url.pathname === "/ask" && request.method === "POST") {
+        return handleAsk(request, env, ctx);
+    }
+
+    return new Response(JSON.stringify({ error: "not found" }), {
+        status: 404,
+        headers: { "content-type": "application/json", ...corsHeaders() },
+    });
 }
 
 export default {
@@ -103,13 +105,3 @@ export default {
     return secureResponse(await routeRequest(request, env, ctx));
   },
 };
-
-function json(body, status, request, env) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      ...corsHeaders(request, env),
-    },
-  });
-}
