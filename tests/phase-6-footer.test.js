@@ -11,6 +11,7 @@ test("Ramone production and preview entrypoints use the Phase 6 wrapper", () => 
   assert.match(preview, /from "\.\/frontend-phase6\.js"/);
   assert.match(production, /handleAsk/);
   assert.match(production, /handleStatus/);
+  assert.match(preview, /text\/event-stream/);
 });
 
 test("Ramone renders one complete product footer", () => {
@@ -45,7 +46,6 @@ test("footer adoption preserves the inference interface anchors", () => {
   }
   assert.match(html, /fetch\("\/status"/);
   assert.match(html, /fetch\("\/ask"/);
-  assert.match(html, /text\/event-stream/);
 });
 
 test("footer presentation keeps v0.4.0 responsive behaviour", () => {
