@@ -16,6 +16,9 @@ a{color:inherit}
 .error-brand{display:flex;align-items:center;gap:var(--atlas-space-3)}
 .error-wordmark{min-height:var(--atlas-touch-min);display:inline-flex;align-items:center;color:var(--atlas-text);font-size:13px;font-weight:500;letter-spacing:.12em;text-decoration:none;text-transform:uppercase}.error-wordmark span{color:var(--atlas-accent)}
 .error-status{min-height:var(--atlas-control-compact);display:inline-flex;align-items:center;gap:var(--atlas-space-2);padding-inline:var(--atlas-space-3);border:1px solid var(--atlas-border);border-radius:var(--atlas-radius-md);color:var(--atlas-text-dim);font-size:var(--atlas-type-meta);text-decoration:none}.error-status i{width:7px;height:7px;border-radius:50%;background:var(--atlas-unknown)}
+.error-status[data-state="operational"]{color:var(--atlas-operational)}.error-status[data-state="operational"] i{background:var(--atlas-operational);box-shadow:0 0 0 3px rgba(74,222,128,.12)}
+.error-status[data-state="degraded"],.error-status[data-state="checking"]{color:var(--atlas-degraded)}.error-status[data-state="degraded"] i,.error-status[data-state="checking"] i{background:var(--atlas-degraded);box-shadow:0 0 0 3px rgba(245,166,35,.12)}
+.error-status[data-state="unavailable"]{color:var(--atlas-unavailable)}.error-status[data-state="unavailable"] i{background:var(--atlas-unavailable);box-shadow:0 0 0 3px rgba(226,75,74,.12)}
 .error-header .atlas-global-header__link{font-size:var(--atlas-type-meta);letter-spacing:.06em;text-transform:uppercase}
 .error-strip{display:grid;grid-template-columns:auto minmax(0,1fr) auto;min-height:44px;align-items:center;gap:var(--atlas-space-3);padding-inline:clamp(var(--atlas-space-4),4vw,var(--atlas-space-7));border-bottom:1px solid var(--atlas-border);color:var(--atlas-text-dim);font-size:var(--atlas-type-meta);letter-spacing:.08em;text-transform:uppercase}.error-strip strong{color:var(--atlas-accent);font-weight:500}.error-strip span:last-child{color:var(--error)}
 .error-main{width:min(100%,1180px);margin:0 auto;flex:1;display:grid;align-items:center;padding:clamp(48px,10vw,120px) clamp(16px,5vw,48px)}
@@ -30,6 +33,42 @@ a{color:inherit}
 @media(max-width:767px){.error-header{grid-template-columns:minmax(0,1fr)}.error-header .atlas-global-header__nav{display:none}.error-strip{grid-template-columns:1fr auto}.error-strip span:nth-child(2){grid-column:1/-1;grid-row:2}.error-main{padding-bottom:var(--atlas-space-8)}.error-footer{flex-direction:column;align-items:flex-start;padding-bottom:calc(var(--atlas-space-8) + env(safe-area-inset-bottom))}.error-footer .atlas-footer__identity,.error-footer .atlas-footer__context,.error-footer .atlas-footer__evidence,.error-footer .atlas-footer__escape{width:100%;border-left:0;padding-left:0;white-space:normal}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 `;
+
+const ERROR_STATUS_SCRIPT = `<script>
+(function () {
+  "use strict";
+  var endpoint = "https://api.atlas-systems.uk/v1/stats";
+  var labels = { checking: "Checking", operational: "Operational", degraded: "Degraded", unavailable: "Unavailable", unknown: "Unknown" };
+  var chip = document.querySelector("[data-atlas-status]");
+  if (!chip) return;
+  function stateFrom(data) {
+    var estate = data && data.estate;
+    var operational = Number(estate && estate.operational);
+    var total = Number(estate && estate.total_components);
+    var checked = Date.parse(estate && estate.checked_at);
+    if (!Number.isFinite(operational) || !Number.isFinite(total) || total <= 0 || operational < 0 || operational > total || !Number.isFinite(checked)) return { state: "unknown", detail: "Status evidence is unavailable." };
+    var age = Date.now() - checked;
+    if (age < 0 || age > 1200000) return { state: "unknown", detail: "Status evidence is stale." };
+    if (operational === total) return { state: "operational", detail: operational + " of " + total + " monitored components operational." };
+    if (operational > total / 2) return { state: "degraded", detail: operational + " of " + total + " monitored components operational." };
+    return { state: "unavailable", detail: operational + " of " + total + " monitored components operational." };
+  }
+  function render(result) {
+    var label = labels[result.state] || labels.unknown;
+    chip.dataset.state = result.state;
+    chip.querySelector("[data-atlas-status-label]").textContent = label;
+    chip.setAttribute("aria-label", "Atlas Systems status: " + label);
+    chip.title = result.detail;
+  }
+  var controller = new AbortController();
+  var timeout = window.setTimeout(function () { controller.abort(); }, 6000);
+  fetch(endpoint, { cache: "no-store", headers: { Accept: "application/json" }, signal: controller.signal })
+    .then(function (response) { if (!response.ok) throw new Error("HTTP " + response.status); return response.json(); })
+    .then(function (data) { render(stateFrom(data)); })
+    .catch(function () { render({ state: "unknown", detail: "Status evidence could not be loaded." }); })
+    .finally(function () { window.clearTimeout(timeout); });
+}());
+</script>`;
 
 export function renderNotFoundFrontend() {
   return `<!doctype html>
@@ -54,7 +93,7 @@ export function renderNotFoundFrontend() {
 <header class="atlas-global-header error-header">
   <div class="atlas-global-header__identity error-brand">
     <a class="error-wordmark" href="https://atlas-systems.uk/">Atlas<span>_</span>Systems</a>
-    <a class="error-status" href="https://status.atlas-systems.uk/"><i aria-hidden="true"></i><span>Status</span></a>
+    <a class="error-status" href="https://status.atlas-systems.uk/" data-atlas-status data-state="checking" aria-label="Atlas Systems status: Checking"><i aria-hidden="true"></i><span data-atlas-status-label>Checking</span></a>
   </div>
   <nav class="atlas-global-header__nav" aria-label="Primary navigation">
     <a class="atlas-global-header__link" href="https://atlas-systems.uk/work/">Work</a>
@@ -79,6 +118,7 @@ export function renderNotFoundFrontend() {
   <div class="atlas-footer__evidence"><a href="https://atlas-systems.uk/writing/ramone-local-ai-system/">Case study</a><a href="https://github.com/AtlasReaper311/ramone-edge">Source</a></div>
   <div class="atlas-footer__escape"><a href="https://atlas-systems.uk/">Atlas Systems home</a></div>
 </footer>
+${ERROR_STATUS_SCRIPT}
 </body>
 </html>`;
 }
