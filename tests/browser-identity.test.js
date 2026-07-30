@@ -26,7 +26,7 @@ describe("Ramone browser identity", () => {
     expect(html).toContain('<link rel="manifest" href="/site.webmanifest"');
   });
 
-  it("serves a noindex HTML 404 for browser navigation", async () => {
+  it("serves a noindex HTML 404 with bounded live aggregate status", async () => {
     const response = await worker.fetch(
       new Request("https://ramone.atlas-systems.uk/not-a-route", {
         headers: {
@@ -49,7 +49,10 @@ describe("Ramone browser identity", () => {
     expect(html).not.toContain('name="twitter:');
     expect(html).not.toContain("/ask");
     expect(html).not.toContain("turnstile");
-    expect(html).not.toContain("<script");
+    expect(html).toContain('data-atlas-status data-state="checking"');
+    expect(html).toContain('data-atlas-status-label>Checking</span>');
+    expect(html).toContain("https://api.atlas-systems.uk/v1/stats");
+    expect(html.match(/<script>/g)).toHaveLength(1);
     expect(html).toContain('<a href="/">Open Ramone</a>');
     expect(html).toContain('<link rel="manifest" href="/site.webmanifest">');
   });
