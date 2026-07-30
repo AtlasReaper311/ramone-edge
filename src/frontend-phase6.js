@@ -4,47 +4,49 @@ const PHASE_6_FOOTER_CSS = `
   .ramone-product-footer {
     max-width: none;
     margin-top: var(--atlas-space-7);
-    padding: var(--atlas-space-5) 0;
-    display: grid;
-    grid-template-columns: minmax(0,1.25fr) minmax(0,.75fr);
-    grid-template-areas:
-      "identity escape"
-      "context evidence";
-    align-items: center;
-    column-gap: var(--atlas-space-6);
-    row-gap: var(--atlas-space-1);
-    border-top: 1px solid var(--atlas-border-hi);
-    color: var(--atlas-text-faint);
-    font: 400 var(--atlas-type-meta)/1.6 var(--atlas-font-body);
-  }
-  .ramone-product-footer .atlas-footer__identity {
-    grid-area: identity;
-    min-width: 0;
+    padding: var(--atlas-space-4) 0;
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--atlas-space-1) var(--atlas-space-3);
+    align-items: center;
+    gap: 0 var(--atlas-space-4);
+    border-top: 1px solid var(--atlas-border-hi);
+    color: var(--atlas-text-faint);
+    font: 400 var(--atlas-type-meta)/1.5 var(--atlas-font-body);
+  }
+  .ramone-product-footer .atlas-footer__identity {
+    min-width: min(100%,220px);
+    flex: 1 1 260px;
+    display: grid;
+    gap: 2px;
     color: var(--atlas-text);
   }
   .ramone-product-footer .atlas-footer__identity strong,
-  .ramone-product-footer .atlas-footer__identity span { display: inline; }
-  .ramone-product-footer .atlas-footer__identity strong { font-weight: 500; letter-spacing: .05em; text-transform: uppercase; }
-  .ramone-product-footer .atlas-footer__identity span { margin-top: 0; color: var(--atlas-text-faint); }
-  .ramone-product-footer .atlas-footer__context { grid-area: context; }
-  .ramone-product-footer .atlas-footer__evidence {
-    grid-area: evidence;
-    justify-self: end;
-    justify-content: flex-end;
+  .ramone-product-footer .atlas-footer__identity span { display: block; }
+  .ramone-product-footer .atlas-footer__identity strong {
+    font-weight: 500;
+    letter-spacing: .06em;
+    line-height: 1.35;
+    text-transform: uppercase;
   }
-  .ramone-product-footer .atlas-footer__escape { grid-area: escape; justify-self: end; }
+  .ramone-product-footer .atlas-footer__identity span {
+    color: var(--atlas-text-faint);
+    line-height: 1.45;
+  }
   .ramone-product-footer .atlas-footer__context,
   .ramone-product-footer .atlas-footer__evidence,
   .ramone-product-footer .atlas-footer__escape {
     min-width: 0;
     display: flex;
-    flex-wrap: wrap;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 0 var(--atlas-space-4);
+    gap: 0 var(--atlas-space-3);
+    white-space: nowrap;
+  }
+  .ramone-product-footer .atlas-footer__evidence,
+  .ramone-product-footer .atlas-footer__escape {
+    border-left: 1px solid var(--atlas-border);
+    padding-left: var(--atlas-space-4);
   }
   .ramone-product-footer a {
     min-width: var(--atlas-touch-min);
@@ -52,30 +54,43 @@ const PHASE_6_FOOTER_CSS = `
     display: inline-flex;
     align-items: center;
     color: var(--atlas-text-dim);
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+    text-decoration-thickness: from-font;
     text-underline-offset: .22em;
   }
-  .ramone-product-footer a:hover { color: var(--atlas-text); text-decoration: none; }
+  .ramone-product-footer a:hover { color: var(--atlas-text); }
   .ramone-product-footer a:focus-visible { outline: 2px solid var(--atlas-accent); outline-offset: 3px; }
   @media (max-width: 767px) {
     .ramone-product-footer {
-      grid-template-columns: 1fr;
-      grid-template-areas: "identity" "context" "evidence" "escape";
-      row-gap: 0;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+      gap: 0;
       padding-bottom: calc(var(--atlas-space-8) + env(safe-area-inset-bottom));
     }
-    .ramone-product-footer .atlas-footer__identity { margin-bottom: var(--atlas-space-1); }
+    .ramone-product-footer .atlas-footer__identity {
+      width: 100%;
+      min-width: 0;
+      margin-bottom: var(--atlas-space-1);
+    }
+    .ramone-product-footer .atlas-footer__context,
     .ramone-product-footer .atlas-footer__evidence,
     .ramone-product-footer .atlas-footer__escape {
-      justify-self: start;
-      justify-content: flex-start;
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 0 var(--atlas-space-3);
+      border-left: 0;
+      padding-left: 0;
+      white-space: normal;
     }
   }
 `;
 
 const PHASE_6_FOOTER = `<footer class="atlas-footer atlas-footer--product ramone-product-footer" aria-label="Ramone product footer">
     <div class="atlas-footer__identity"><strong>Ramone</strong><span>Grounded local AI on owner-operated infrastructure</span></div>
-    <div class="atlas-footer__context"><a href="https://atlas-systems.uk/writing/ramone-local-ai-system/">Build log</a><a href="https://atlas-systems.uk/lab/">Atlas Systems Lab</a></div>
-    <div class="atlas-footer__evidence"><a href="https://status.atlas-systems.uk/">Estate status</a><a href="https://github.com/AtlasReaper311/ramone-edge">Edge source</a><a href="https://github.com/AtlasReaper311/ollama-rag-kit">Inference source</a></div>
+    <div class="atlas-footer__context"><a href="https://atlas-systems.uk/writing/ramone-local-ai-system/">Build log</a></div>
+    <div class="atlas-footer__evidence"><a href="https://github.com/AtlasReaper311/ramone-edge">Edge source</a><a href="https://github.com/AtlasReaper311/ollama-rag-kit">Inference source</a></div>
     <div class="atlas-footer__escape"><a href="https://atlas-systems.uk/">Atlas Systems home</a></div>
   </footer>`;
 
