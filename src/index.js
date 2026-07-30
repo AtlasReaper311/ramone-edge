@@ -18,7 +18,7 @@
 
 import { handleAsk } from "./ask.js";
 import { handleStatus } from "./status.js";
-import { renderFrontend } from "./frontend.js";
+import { renderFrontend } from "./frontend-phase6.js";
 import { handleBrowserIcon } from "./browser-icons.js";
 import { handleInterfaceAsset } from "./interface-assets.js";
 import { corsHeaders, handlePreflight } from "./cors.js";
