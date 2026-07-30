@@ -48,9 +48,12 @@ describe("Ramone Phase 6 footer", () => {
     expect(html).toMatch(/fetch\("\/ask"/);
   });
 
-  it("keeps the v0.4.0 responsive footer behaviour", () => {
+  it("keeps a compact two-band desktop rail and the v0.4.0 responsive footer behaviour", () => {
     const html = renderFrontend({});
-    expect(html).toMatch(/grid-template-areas:/);
+    expect(html).toMatch(/grid-template-areas:\s*"identity escape"\s*"context evidence"/);
+    expect(html).toMatch(/margin-top: var\(--atlas-space-7\)/);
+    expect(html).toMatch(/padding: var\(--atlas-space-5\) 0/);
+    expect(html).toMatch(/min-width: var\(--atlas-touch-min\)/);
     expect(html).toMatch(/min-height: var\(--atlas-touch-min\)/);
     expect(html).toMatch(/safe-area-inset-bottom/);
     expect(html).toMatch(/@media \(max-width: 767px\)/);
