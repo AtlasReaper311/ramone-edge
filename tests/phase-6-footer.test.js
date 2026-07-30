@@ -14,7 +14,7 @@ describe("Ramone Phase 6 footer", () => {
     expect(preview).toMatch(/text\/event-stream/);
   });
 
-  it("renders one complete product footer", () => {
+  it("renders one complete and bounded product footer", () => {
     const html = renderFrontend({});
     const matches = html.match(/<footer\b[\s\S]*?<\/footer>/g) || [];
     expect(matches).toHaveLength(1);
@@ -27,6 +27,9 @@ describe("Ramone Phase 6 footer", () => {
     expect(footer).toMatch(/atlas-footer__escape/);
     expect(footer).toMatch(/Grounded local AI on owner-operated infrastructure/);
     expect(footer).toMatch(/Atlas Systems home/);
+    expect(footer.match(/<a\b/g) || []).toHaveLength(4);
+    expect(footer).not.toMatch(/Atlas Systems Lab/);
+    expect(footer).not.toMatch(/Estate status/);
     expect(footer).not.toMatch(/atlas-footer__sequence/);
     expect(footer).not.toMatch(/built and maintained by/);
   });
@@ -48,11 +51,14 @@ describe("Ramone Phase 6 footer", () => {
     expect(html).toMatch(/fetch\("\/ask"/);
   });
 
-  it("keeps a compact two-band desktop rail and the v0.4.0 responsive footer behaviour", () => {
+  it("keeps a single underlined rail and the v0.4.0 responsive footer behaviour", () => {
     const html = renderFrontend({});
-    expect(html).toMatch(/grid-template-areas:\s*"identity escape"\s*"context evidence"/);
+    expect(html).toMatch(/\.ramone-product-footer\s*\{[\s\S]*display: flex;/);
+    expect(html).toMatch(/flex-wrap: wrap/);
     expect(html).toMatch(/margin-top: var\(--atlas-space-7\)/);
-    expect(html).toMatch(/padding: var\(--atlas-space-5\) 0/);
+    expect(html).toMatch(/padding: var\(--atlas-space-4\) 0/);
+    expect(html).toMatch(/text-decoration: underline/);
+    expect(html).not.toMatch(/a:hover \{ color: var\(--atlas-text\); text-decoration: none;/);
     expect(html).toMatch(/min-width: var\(--atlas-touch-min\)/);
     expect(html).toMatch(/min-height: var\(--atlas-touch-min\)/);
     expect(html).toMatch(/safe-area-inset-bottom/);
