@@ -72,12 +72,14 @@ const PHASE_6_FOOTER_CSS = `
     .ramone-product-footer .atlas-footer__identity {
       width: 100%;
       min-width: 0;
+      flex: 0 0 auto;
       margin-bottom: var(--atlas-space-1);
     }
     .ramone-product-footer .atlas-footer__context,
     .ramone-product-footer .atlas-footer__evidence,
     .ramone-product-footer .atlas-footer__escape {
       width: 100%;
+      flex: 0 0 auto;
       flex-wrap: wrap;
       gap: 0 var(--atlas-space-3);
       border-left: 0;
