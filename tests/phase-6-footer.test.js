@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { renderFrontend } from "../src/frontend-phase6.js";
+import { renderNotFoundFrontend } from "../src/not-found.js";
 
 describe("Ramone Phase 6 footer", () => {
   it("uses the Phase 6 wrapper for production and preview entrypoints", () => {
@@ -63,6 +64,19 @@ describe("Ramone Phase 6 footer", () => {
     expect(html).toMatch(/min-height: var\(--atlas-touch-min\)/);
     expect(html).toMatch(/safe-area-inset-bottom/);
     expect(html).toMatch(/@media \(max-width: 767px\)/);
+    expect(html).toMatch(/\.ramone-product-footer \.atlas-footer__identity \{[\s\S]*?flex: 0 0 auto;/);
+    expect(html).toMatch(
+      /\.ramone-product-footer \.atlas-footer__context,[\s\S]*?\.ramone-product-footer \.atlas-footer__escape \{[\s\S]*?flex: 0 0 auto;/,
+    );
+  });
+
+  it("keeps the route-unavailable footer compact on mobile", () => {
+    const html = renderNotFoundFrontend();
+    expect(html).toMatch(/class="atlas-footer atlas-footer--product error-footer"/);
+    expect(html).toMatch(/@media\(max-width:767px\)/);
+    expect(html).toMatch(
+      /\.error-footer \.atlas-footer__identity,[\s\S]*?\.error-footer \.atlas-footer__escape\{width:100%;flex:0 0 auto;/,
+    );
   });
 
   it("requires explicit approval for preview provider writes", () => {
