@@ -16,9 +16,9 @@
     "check": "node --check src/index.js && node --check src/ask.js && node --check src/cors.js && node --check src/frontend.js && node --check src/frontend-core.js && node --check src/browser-icons.js && node --check src/browser-icons.generated.js && node --check src/interface-assets.js && node --check src/interface-bundle.generated.js && node --check src/interface-preview.js && node --check src/notify.js && node --check src/ratelimit.js && node --check src/security.js && node --check src/status.js && node --check scripts/capture-interface-evidence.mjs && node --check scripts/embed-browser-icons.mjs && node --check scripts/embed-interface-bundle.mjs && node --check scripts/verify-interface-bundle.mjs"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.18.6",
-    "eslint": "^10.7.0",
-    "globals": "^17.7.0",
+    "@cloudflare/vitest-pool-workers": "^0.19.1",
+    "eslint": "^10.8.0",
+    "globals": "^17.8.0",
     "vitest": "^4.1.10",
     "wrangler": "^4.112.0"
   },
