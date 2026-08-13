@@ -39,7 +39,8 @@ ${RAMONE_INTERFACE_CSS}
   .atlas-wordmark { min-height: var(--atlas-touch-min); display: inline-flex; align-items: center; color: var(--text); font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
   .atlas-wordmark:hover { text-decoration: none; color: var(--text); }
   .atlas-wordmark span { color: var(--accent); }
-  .ramone-global-header .atlas-global-header__link { font-size: var(--atlas-type-meta); letter-spacing: .08em; text-transform: uppercase; }
+  .ramone-global-header .atlas-global-header__nav { gap: 0; }
+  .ramone-global-header .atlas-global-header__link { padding: .35rem .85rem; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
   .ramone-global-header .atlas-global-header__link { min-width: var(--atlas-touch-min); justify-content: center; }
   .ramone-global-header .atlas-global-header__link:hover,
   .ramone-global-header .atlas-global-header__link:focus-visible { color: var(--text); text-decoration: none; }

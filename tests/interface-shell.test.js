@@ -43,6 +43,8 @@ describe("Ramone estate shell", () => {
       expect(rendered).toContain(`https://atlas-systems.uk${route}`);
     }
     expect(rendered).toContain('class="atlas-global-header ramone-global-header"');
+    expect(rendered).toContain(".ramone-global-header .atlas-global-header__nav { gap: 0; }");
+    expect(rendered).toContain(".ramone-global-header .atlas-global-header__link { padding: .35rem .85rem; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }");
     expect(rendered).toContain('class="atlas-bottom-nav ramone-bottom-nav"');
     expect(rendered).toContain('class="topbar atlas-product-strip ramone-product-strip"');
     expect(rendered).toContain("data-estate-search-open");
