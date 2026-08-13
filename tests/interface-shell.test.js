@@ -43,8 +43,10 @@ describe("Ramone estate shell", () => {
       expect(rendered).toContain(`https://atlas-systems.uk${route}`);
     }
     expect(rendered).toContain('class="atlas-global-header ramone-global-header"');
+    expect(rendered).toContain('class="atlas-header__inner"');
     expect(rendered).toContain(".ramone-global-header .atlas-global-header__nav { gap: 24px; }");
-    expect(rendered).toContain(".ramone-global-header .atlas-global-header__link { padding: 0; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }");
+    expect(rendered).toContain(".ramone-global-header .atlas-global-header__link { padding-inline: 12px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }");
+    expect(rendered).not.toContain(".ramone-global-header .atlas-global-header__link { padding: 0; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }");
     expect(rendered).not.toContain(".ramone-global-header .atlas-global-header__nav { gap: 0; }");
     expect(rendered).toContain('class="atlas-bottom-nav ramone-bottom-nav"');
     expect(rendered).toContain('class="topbar atlas-product-strip ramone-product-strip"');
@@ -293,7 +295,8 @@ describe("Ramone estate shell", () => {
     expect(RAMONE_INTERFACE_CSS).toContain(".atlas-global-header");
     expect(RAMONE_INTERFACE_CSS).toContain(".atlas-bottom-nav");
     expect(rendered).toContain("--atlas-shell-gutter:max(24px,calc((100% - 1280px)/2))");
-    expect(rendered).toContain("grid-template-columns:minmax(230px,1fr) auto minmax(230px,1fr)");
+    expect(rendered).toContain("grid-template-columns: minmax(230px,1fr) auto minmax(230px,1fr)");
+    expect(rendered).toContain("width: min(calc(100% - 48px), 1280px)");
     expect(RAMONE_INTERFACE_CSS).not.toMatch(/https?:\/\//);
     expect(RAMONE_INTERFACE_FONT_CSS).toContain("@font-face");
     expect(RAMONE_INTERFACE_FONT_CSS).toContain("/assets/interface/fonts/");
