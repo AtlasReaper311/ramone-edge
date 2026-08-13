@@ -39,9 +39,8 @@ ${RAMONE_INTERFACE_CSS}
   .atlas-wordmark { min-height: var(--atlas-touch-min); display: inline-flex; align-items: center; color: var(--text); font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
   .atlas-wordmark:hover { text-decoration: none; color: var(--text); }
   .atlas-wordmark span { color: var(--accent); }
-  .ramone-global-header .atlas-global-header__nav { gap: 0; }
-  .ramone-global-header .atlas-global-header__link { padding: .35rem .85rem; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
-  .ramone-global-header .atlas-global-header__link { min-width: var(--atlas-touch-min); justify-content: center; }
+  .ramone-global-header .atlas-global-header__nav { gap: 24px; }
+  .ramone-global-header .atlas-global-header__link { padding: 0; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
   .ramone-global-header .atlas-global-header__link:hover,
   .ramone-global-header .atlas-global-header__link:focus-visible { color: var(--text); text-decoration: none; }
   .atlas-estate-status { min-height: var(--atlas-touch-min); font-size: var(--atlas-type-tiny); white-space: nowrap; }
@@ -508,8 +507,8 @@ ${RAMONE_INTERFACE_CSS}
   @media (min-width: 768px) and (max-width: 1023px) {
     .ramone-global-header { gap: var(--atlas-space-2); padding-inline: var(--atlas-space-3); }
     .ramone-global-header .atlas-global-header__identity { gap: var(--atlas-space-2); }
-    .ramone-global-header .atlas-global-header__nav { gap: 0; }
-    .ramone-global-header .atlas-global-header__link { padding-inline: var(--atlas-space-2); font-size: var(--atlas-type-tiny); }
+    .ramone-global-header .atlas-global-header__nav { gap: 24px; }
+    .ramone-global-header .atlas-global-header__link { padding-inline: 0; font-size: 12px; }
     .ramone-global-header .atlas-estate-status { width: var(--atlas-touch-min); justify-content: center; padding: 0; }
     .ramone-global-header .atlas-estate-status-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
     .ramone-global-header .atlas-search-trigger { min-width: var(--atlas-touch-min); justify-content: center; padding-inline: var(--atlas-space-2); }
