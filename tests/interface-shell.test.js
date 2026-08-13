@@ -21,7 +21,7 @@ const indexSource = fs.readFileSync("src/index.js", "utf8");
 const wrangler = fs.readFileSync("wrangler.toml", "utf8");
 const previewWrangler = fs.readFileSync("wrangler.interface-preview.toml", "utf8");
 const previewWorkflow = fs.readFileSync(".github/workflows/interface-preview.yml", "utf8");
-const bundleRoot = "assets/interface/v0.2.0";
+const bundleRoot = "assets/interface/v0.5.0";
 
 function sha256(path) {
   return crypto.createHash("sha256").update(fs.readFileSync(path)).digest("hex");
@@ -264,7 +264,7 @@ describe("Ramone estate shell", () => {
     const manifest = JSON.parse(
       fs.readFileSync(`${bundleRoot}/manifest.json`, "utf8"),
     );
-    expect(RAMONE_INTERFACE_VERSION).toBe("0.2.0");
+    expect(RAMONE_INTERFACE_VERSION).toBe("0.5.0");
     expect(manifest.contract_version).toBe("2.0.0");
     expect(Object.keys(manifest.files).sort()).toEqual([
       "atlas-fonts.css",
@@ -276,6 +276,7 @@ describe("Ramone estate shell", () => {
       "fonts/ibm-plex-mono-500.woff2",
       "licenses/DM-Serif-Display-OFL.txt",
       "licenses/IBM-Plex-Mono-OFL.txt",
+      "semantics.json",
       "tokens.json",
     ]);
     for (const [name, record] of Object.entries(manifest.files)) {
@@ -285,9 +286,11 @@ describe("Ramone estate shell", () => {
     expect(RAMONE_INTERFACE_SHA256).toBe(
       manifest.files["atlas-interface-kit.css"].sha256,
     );
-    expect(RAMONE_INTERFACE_CSS).toContain("Atlas Interface Kit v0.2.0");
+    expect(RAMONE_INTERFACE_CSS).toContain("Atlas Interface Kit v0.5.0");
     expect(RAMONE_INTERFACE_CSS).toContain(".atlas-global-header");
     expect(RAMONE_INTERFACE_CSS).toContain(".atlas-bottom-nav");
+    expect(rendered).toContain("--atlas-shell-gutter:max(24px,calc((100% - 1280px)/2))");
+    expect(rendered).toContain("grid-template-columns:minmax(230px,1fr) auto minmax(230px,1fr)");
     expect(RAMONE_INTERFACE_CSS).not.toMatch(/https?:\/\//);
     expect(RAMONE_INTERFACE_FONT_CSS).toContain("@font-face");
     expect(RAMONE_INTERFACE_FONT_CSS).toContain("/assets/interface/fonts/");

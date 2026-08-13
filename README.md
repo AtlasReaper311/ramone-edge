@@ -75,7 +75,7 @@ activity when a question is submitted. Curated local personality responses work
 while Ramone is asleep and are explicitly labelled as having no evidence.
 
 The accepted Atlas Interface Kit is vendored under
-`assets/interface/v0.2.0/`, verified against its manifest, and embedded into
+`assets/interface/v0.5.0/`, verified against its manifest, and embedded into
 the Worker response. The Worker serves the exact pinned WOFF2 files from
 immutable same-origin routes, so the CSP can remain self-only and there is no
 browser-time dependency on Google Fonts, the kit repository, or another
