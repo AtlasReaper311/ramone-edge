@@ -34,7 +34,7 @@ const HEAD = `<title>Ramone // Atlas Systems</title>
 
 const SHELL_CSS = `${RAMONE_INTERFACE_FONT_CSS}
 ${RAMONE_INTERFACE_CSS}
-  .ramone-global-header { font-family: var(--atlas-font-body); }
+  .ramone-global-header { --atlas-shell-gutter:max(24px,calc((100% - 1280px)/2)); grid-template-columns:minmax(230px,1fr) auto minmax(230px,1fr); padding-inline:var(--atlas-shell-gutter); font-family: var(--atlas-font-body); }
   .atlas-brand-cluster { display: inline-flex; align-items: center; gap: 12px; min-width: 0; }
   .atlas-wordmark { min-height: var(--atlas-touch-min); display: inline-flex; align-items: center; color: var(--text); font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
   .atlas-wordmark:hover { text-decoration: none; color: var(--text); }
@@ -476,7 +476,7 @@ ${RAMONE_INTERFACE_CSS}
     .ramone-boundary-links { grid-template-columns: repeat(2,minmax(0,1fr)); }
   }
   @media (max-width: 767px) {
-    .ramone-global-header { grid-template-columns: minmax(0,1fr) auto; }
+    .ramone-global-header { grid-template-columns: minmax(0,1fr) auto; padding-inline: var(--atlas-space-4); }
     .ramone-global-header .atlas-global-header__actions { display: flex; }
     .ramone-global-header .atlas-search-trigger { min-width: var(--atlas-touch-min); justify-content: center; padding-inline: 8px; }
     .atlas-search-trigger span, .atlas-search-trigger kbd { display: none; }
