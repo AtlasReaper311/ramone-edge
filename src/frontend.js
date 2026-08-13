@@ -34,22 +34,24 @@ const HEAD = `<title>Ramone // Atlas Systems</title>
 
 const SHELL_CSS = `${RAMONE_INTERFACE_FONT_CSS}
 ${RAMONE_INTERFACE_CSS}
-  .ramone-global-header { --atlas-shell-gutter:max(24px,calc((100% - 1280px)/2)); grid-template-columns:minmax(230px,1fr) auto minmax(230px,1fr); padding-inline:var(--atlas-shell-gutter); font-family: var(--atlas-font-body); }
+  .ramone-global-header.atlas-global-header { display: block; --atlas-shell-gutter:max(24px,calc((100% - 1280px)/2)); padding: 0; font-family: var(--atlas-font-body); }
+  .ramone-global-header .atlas-header__inner { width: min(calc(100% - 48px), 1280px); min-height: 56px; margin-inline: auto; display: grid; grid-template-columns: minmax(230px,1fr) auto minmax(230px,1fr); align-items: center; gap: 24px; }
   .atlas-brand-cluster { display: inline-flex; align-items: center; gap: 12px; min-width: 0; }
-  .atlas-wordmark { min-height: var(--atlas-touch-min); display: inline-flex; align-items: center; color: var(--text); font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+  .atlas-wordmark { min-height: 44px; display: inline-flex; align-items: center; color: var(--text); font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
   .atlas-wordmark:hover { text-decoration: none; color: var(--text); }
   .atlas-wordmark span { color: var(--accent); }
   .ramone-global-header .atlas-global-header__nav { gap: 24px; }
-  .ramone-global-header .atlas-global-header__link { padding: 0; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+  .ramone-global-header .atlas-global-header__link { padding-inline: 12px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
   .ramone-global-header .atlas-global-header__link:hover,
   .ramone-global-header .atlas-global-header__link:focus-visible { color: var(--text); text-decoration: none; }
-  .atlas-estate-status { min-height: var(--atlas-touch-min); font-size: var(--atlas-type-tiny); white-space: nowrap; }
+  .ramone-global-header .atlas-status.atlas-estate-status,
+  .atlas-estate-status { min-height: 44px; padding: 0 10px; border-radius: 6px; font-size: 10px; letter-spacing: .08em; gap: 7px; white-space: nowrap; }
   .atlas-estate-status:hover, .atlas-estate-status:focus-visible { border-color: var(--border-hi); color: var(--text); text-decoration: none; }
   .atlas-estate-status-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--text-faint); }
   .atlas-estate-status[data-state="operational"] .atlas-estate-status-dot { background: var(--status-live); box-shadow: 0 0 0 3px rgba(74,222,128,.12); }
   .atlas-estate-status[data-state="degraded"] .atlas-estate-status-dot, .atlas-estate-status[data-state="checking"] .atlas-estate-status-dot { background: var(--accent); box-shadow: 0 0 0 3px rgba(245,166,35,.12); }
   .atlas-estate-status[data-state="unavailable"] .atlas-estate-status-dot { background: var(--status-down); box-shadow: 0 0 0 3px rgba(226,75,74,.12); }
-  .atlas-search-trigger { display: inline-flex; align-items: center; gap: 7px; min-height: var(--atlas-touch-min); padding: 5px 11px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font: inherit; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+  .atlas-search-trigger { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); font: inherit; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
   .atlas-search-trigger:hover, .atlas-search-trigger:focus-visible { color: var(--text); border-color: var(--border-hi); }
   .atlas-search-trigger svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; }
   .atlas-search-trigger kbd { color: var(--atlas-text-faint); font: inherit; font-size: var(--atlas-type-tiny); }
@@ -476,7 +478,8 @@ ${RAMONE_INTERFACE_CSS}
     .ramone-boundary-links { grid-template-columns: repeat(2,minmax(0,1fr)); }
   }
   @media (max-width: 767px) {
-    .ramone-global-header { grid-template-columns: minmax(0,1fr) auto; padding-inline: var(--atlas-space-4); }
+    .ramone-global-header.atlas-global-header { padding: 0; }
+    .ramone-global-header .atlas-header__inner { width: min(calc(100% - 32px), 1280px); grid-template-columns: minmax(0,1fr) auto; gap: 12px; }
     .ramone-global-header .atlas-global-header__actions { display: flex; }
     .ramone-global-header .atlas-search-trigger { min-width: var(--atlas-touch-min); justify-content: center; padding-inline: 8px; }
     .atlas-search-trigger span, .atlas-search-trigger kbd { display: none; }
@@ -505,13 +508,6 @@ ${RAMONE_INTERFACE_CSS}
     .composer { bottom: calc(64px + env(safe-area-inset-bottom) + var(--atlas-space-3)); }
   }
   @media (min-width: 768px) and (max-width: 1023px) {
-    .ramone-global-header { gap: var(--atlas-space-2); padding-inline: var(--atlas-space-3); }
-    .ramone-global-header .atlas-global-header__identity { gap: var(--atlas-space-2); }
-    .ramone-global-header .atlas-global-header__nav { gap: 24px; }
-    .ramone-global-header .atlas-global-header__link { padding-inline: 0; font-size: 12px; }
-    .ramone-global-header .atlas-estate-status { width: var(--atlas-touch-min); justify-content: center; padding: 0; }
-    .ramone-global-header .atlas-estate-status-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
-    .ramone-global-header .atlas-search-trigger { min-width: var(--atlas-touch-min); justify-content: center; padding-inline: var(--atlas-space-2); }
     .ramone-global-header .atlas-search-trigger span,
     .ramone-global-header .atlas-search-trigger kbd { display: none; }
   }
@@ -542,6 +538,7 @@ ${RAMONE_INTERFACE_CSS}
 `;
 
 const HEADER = `<header class="atlas-global-header ramone-global-header">
+  <div class="atlas-header__inner">
   <div class="atlas-global-header__identity atlas-brand-cluster">
     <a class="atlas-wordmark" href="https://atlas-systems.uk/">Atlas<span>_</span>Systems</a>
     <a class="atlas-status atlas-estate-status" href="https://status.atlas-systems.uk/" data-state="checking" aria-label="Atlas Systems status: Checking">
@@ -558,6 +555,7 @@ const HEADER = `<header class="atlas-global-header ramone-global-header">
   </nav>
   <div class="atlas-global-header__actions">
     <button class="atlas-search-trigger" type="button" data-estate-search-open aria-label="Search the estate" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.2" y2="16.2"></line></svg><span>Search</span><kbd>ctrl k</kbd></button>
+  </div>
   </div>
 </header>`;
 
