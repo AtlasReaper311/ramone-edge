@@ -93,3 +93,30 @@ export function buildAskEvent({
     },
   };
 }
+
+export function buildFailureCaptureEvent({
+  status,
+  reason,
+  latencyMs,
+  promptChars,
+  answerChars,
+  sources,
+  caseId,
+}) {
+  return {
+    level: status >= 500 ? "failure" : status >= 400 ? "warning" : "info",
+    title: status < 300 ? "ramone: failure captured" : "ramone: failure capture failed",
+    message: reason
+      ? `status=${status} reason=${reason} latency=${latencyMs}ms`
+      : `status=${status} latency=${latencyMs}ms case=${caseId}`,
+    fields: {
+      status,
+      reason: reason || undefined,
+      case_id: caseId || undefined,
+      prompt_chars: promptChars,
+      answer_chars: answerChars,
+      sources_used: sources,
+      latency_ms: latencyMs,
+    },
+  };
+}

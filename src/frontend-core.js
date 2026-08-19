@@ -832,6 +832,7 @@ export function renderFrontend(_env) {
     var startedAt = performance.now();
     var firstTokenAt = null;
     var totalChars = 0;
+    var displayedSources = [];
 
     try {
       if (personality) {
@@ -915,6 +916,12 @@ export function renderFrontend(_env) {
               ans.scrollIntoView({ block: "end", behavior: "smooth" });
             } else if (evt.type === "sources" && Array.isArray(evt.sources)) {
               setActivity("attaching public evidence");
+              displayedSources = evt.sources.map(function (source) {
+                return {
+                  id: typeof source.id === "string" ? source.id : "",
+                  preview: typeof source.preview === "string" ? source.preview : "",
+                };
+              });
               renderSources(entry, evt.sources);
             } else if (evt.type === "error" && typeof evt.reason === "string") {
               renderError(entry, ans, cursor, evt.reason);
@@ -929,6 +936,11 @@ export function renderFrontend(_env) {
         firstTokenMs: firstTokenAt !== null ? Math.round(firstTokenAt - startedAt) : null,
         totalMs: Math.round(performance.now() - startedAt),
         chars: totalChars,
+      });
+      renderFailureAction(entry, {
+        question: question,
+        answer: textNode.data,
+        sources: displayedSources,
       });
       finishWorking("grounded answer ready");
     } catch (err) {
@@ -985,6 +997,38 @@ export function renderFrontend(_env) {
     parts.push("total " + m.totalMs + "ms");
     parts.push(m.chars + " chars");
     wrap.textContent = parts.join(" · ");
+    entry.appendChild(wrap);
+  }
+  function renderFailureAction(entry, payload) {
+    if (!payload.answer || payload.answer.length < 1) return;
+    var wrap = document.createElement("div");
+    wrap.className = "entry-actions";
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "failure-report";
+    button.textContent = "report answer";
+    button.addEventListener("click", async function () {
+      var reason = window.prompt("What was wrong with this answer?", "incorrect or unsupported answer");
+      if (reason === null) return;
+      button.disabled = true;
+      button.textContent = "reporting";
+      try {
+        var res = await fetch("/feedback/failure", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            question: payload.question,
+            answer: payload.answer,
+            reason: reason,
+            sources: payload.sources,
+          }),
+        });
+        button.textContent = res.ok ? "reported" : "report failed";
+      } catch (_) {
+        button.textContent = "report failed";
+      }
+    });
+    wrap.appendChild(button);
     entry.appendChild(wrap);
   }
   function renderSleeping(entry, ans, cursor, message) {

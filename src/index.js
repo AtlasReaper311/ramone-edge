@@ -13,11 +13,13 @@
  *   GET  /.well-known/security.txt security contact
  *   GET  /status       cached awake/asleep probe for live indicators
  *   POST /ask          proxied Q&A, streams SSE back to the client
+ *   POST /feedback/failure user-clicked draft eval capture
  *   GET  /*            noindex HTML 404 for browser navigation, JSON otherwise
  *   *    /*            JSON 404
  */
 
 import { handleAsk } from "./ask.js";
+import { handleFailureCapture } from "./failure-capture.js";
 import { handleStatus } from "./status.js";
 import { renderFrontend } from "./frontend-phase6.js";
 import { renderNotFoundFrontend } from "./not-found.js";
@@ -42,6 +44,7 @@ const META = {
     { method: "GET", path: "/.well-known/security.txt", description: "Security contact" },
     { method: "GET", path: "/status", description: "Cached awake/asleep probe for live indicators" },
     { method: "POST", path: "/ask", description: "Turnstile-protected Q&A proxy streaming SSE from the local stack" },
+    { method: "POST", path: "/feedback/failure", description: "User-clicked draft eval capture for a completed Ramone answer" },
     { method: "GET", path: "/_meta", description: "This document" },
   ],
   source: "https://github.com/AtlasReaper311/ramone-edge",
@@ -98,6 +101,10 @@ async function routeRequest(request, env, ctx) {
 
       if (request.method === "POST" && url.pathname === "/ask") {
         return handleAsk(request, env, ctx);
+      }
+
+      if (request.method === "POST" && url.pathname === "/feedback/failure") {
+        return handleFailureCapture(request, env, ctx);
       }
 
       if (wantsHtml(request)) {

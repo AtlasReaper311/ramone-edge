@@ -424,6 +424,21 @@ ${RAMONE_INTERFACE_CSS}
   button.transmit { min-height: var(--atlas-touch-min); border-radius: var(--atlas-radius-sm); padding-inline: var(--atlas-space-4); }
   .entry-meta,
   .char-count { color: var(--atlas-text-faint); font-size: var(--atlas-type-meta); }
+  .entry-actions { margin-top: var(--atlas-space-3); }
+  .failure-report {
+    min-height: 34px;
+    border: 1px solid var(--atlas-border);
+    border-radius: var(--atlas-radius-sm);
+    padding: 6px 10px;
+    background: transparent;
+    color: var(--atlas-text-faint);
+    font: inherit;
+    font-size: var(--atlas-type-meta);
+    cursor: pointer;
+  }
+  .failure-report:hover,
+  .failure-report:focus-visible { border-color: var(--atlas-accent); color: var(--atlas-text); }
+  .failure-report:disabled { cursor: default; opacity: .72; }
   .ramone-workspace.is-engaged .ramone-intro {
     grid-template-columns: minmax(0,1fr) minmax(260px,320px);
     min-height: 210px;
