@@ -20,17 +20,28 @@ const core = fs.readFileSync("src/frontend-core.js", "utf8");
 const indexSource = fs.readFileSync("src/index.js", "utf8");
 const wrangler = fs.readFileSync("wrangler.toml", "utf8");
 const previewWrangler = fs.readFileSync("wrangler.interface-preview.toml", "utf8");
-const previewWorkflow = fs.readFileSync(".github/workflows/interface-preview.yml", "utf8");
+const previewWorkflow = fs
+  .readFileSync(".github/workflows/interface-preview.yml", "utf8")
+  .replace(/\r\n/g, "\n");
 const bundleRoot = "assets/interface/v0.2.0";
 
+function manifestBytes(path) {
+  const buffer = fs.readFileSync(path);
+  if (/\.(css|json|yml|yaml|md)$/i.test(path)) {
+    return Buffer.from(buffer.toString("utf8").replace(/\r\n/g, "\n"), "utf8");
+  }
+  return buffer;
+}
+
 function sha256(path) {
-  return crypto.createHash("sha256").update(fs.readFileSync(path)).digest("hex");
+  return crypto.createHash("sha256").update(manifestBytes(path)).digest("hex");
 }
 
 describe("Ramone estate shell", () => {
   it("keeps the original operational renderer as the core authority", () => {
     expect(core).toContain('fetch("/status"');
     expect(core).toContain('fetch("/ask"');
+    expect(core).toContain('fetch("/feedback/failure"');
     expect(core).toContain('var MAX = 2000');
     expect(core).toContain('ramone:session_id');
     expect(core).toContain('evt.type === "token"');
@@ -155,6 +166,8 @@ describe("Ramone estate shell", () => {
     expect(rendered).toContain('starterPrompts.classList.add("is-receding")');
     expect(rendered).toContain('document.createElement("details")');
     expect(rendered).toContain('card.className = "source-card"');
+    expect(rendered).toContain('button.className = "failure-report"');
+    expect(rendered).toContain('button.textContent = "report answer"');
     expect(rendered).toContain(".char-count { color: var(--atlas-text-faint)");
     expect(rendered).toContain(".atlas-search-trigger kbd { color: var(--atlas-text-faint)");
     expect(rendered).toContain('var KEY = "ramone:session_id"');
@@ -208,7 +221,9 @@ describe("Ramone estate shell", () => {
     expect(indexSource).toContain('url.pathname === "/"');
     expect(indexSource).toContain('url.pathname === "/status"');
     expect(indexSource).toContain('url.pathname === "/ask"');
+    expect(indexSource).toContain('url.pathname === "/feedback/failure"');
     expect(indexSource).toContain('return handleAsk(request, env, ctx)');
+    expect(indexSource).toContain('return handleFailureCapture(request, env, ctx)');
     expect(indexSource).toContain('return handleStatus(request, env, ctx)');
     expect(indexSource).toContain('const meta = handleMeta(url, META)');
   });
@@ -279,7 +294,7 @@ describe("Ramone estate shell", () => {
       "tokens.json",
     ]);
     for (const [name, record] of Object.entries(manifest.files)) {
-      expect(fs.statSync(`${bundleRoot}/${name}`).size).toBe(record.bytes);
+      expect(manifestBytes(`${bundleRoot}/${name}`).length).toBe(record.bytes);
       expect(sha256(`${bundleRoot}/${name}`)).toBe(record.sha256);
     }
     expect(RAMONE_INTERFACE_SHA256).toBe(

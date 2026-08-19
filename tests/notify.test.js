@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildAskEvent } from "../src/notify.js";
+import { buildAskEvent, buildFailureCaptureEvent } from "../src/notify.js";
 
 describe("buildAskEvent", () => {
   it("classifies 2xx as info and uses persist-only path", () => {
@@ -90,5 +90,28 @@ describe("buildAskEvent", () => {
     });
     const flat = JSON.stringify(e);
     expect(flat).not.toMatch(/\d+\.\d+\.\d+\.\d+/);
+  });
+});
+
+describe("buildFailureCaptureEvent", () => {
+  it("reports capture metadata without raw question or answer text", () => {
+    const e = buildFailureCaptureEvent({
+      status: 202,
+      reason: null,
+      latencyMs: 123,
+      promptChars: 44,
+      answerChars: 512,
+      sources: 2,
+      caseId: "pending-ramone-rag-generation-test",
+    });
+
+    expect(e.level).toBe("info");
+    expect(e.title).toBe("ramone: failure captured");
+    expect(e.fields.case_id).toBe("pending-ramone-rag-generation-test");
+    expect(e.fields.prompt_chars).toBe(44);
+    expect(e.fields.answer_chars).toBe(512);
+    expect(e.fields.sources_used).toBe(2);
+    expect(JSON.stringify(e)).not.toContain("What is Ramone?");
+    expect(JSON.stringify(e)).not.toContain("Ramone is local.");
   });
 });
