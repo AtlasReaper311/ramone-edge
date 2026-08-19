@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const version = "0.2.0";
+const version = "0.5.0";
 const source = path.join(root, "assets", "interface", `v${version}`);
 const manifest = JSON.parse(
   fs.readFileSync(path.join(source, "manifest.json"), "utf8"),

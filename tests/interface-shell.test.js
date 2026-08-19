@@ -23,7 +23,7 @@ const previewWrangler = fs.readFileSync("wrangler.interface-preview.toml", "utf8
 const previewWorkflow = fs
   .readFileSync(".github/workflows/interface-preview.yml", "utf8")
   .replace(/\r\n/g, "\n");
-const bundleRoot = "assets/interface/v0.2.0";
+const bundleRoot = "assets/interface/v0.5.0";
 
 function manifestBytes(path) {
   const buffer = fs.readFileSync(path);
@@ -54,6 +54,11 @@ describe("Ramone estate shell", () => {
       expect(rendered).toContain(`https://atlas-systems.uk${route}`);
     }
     expect(rendered).toContain('class="atlas-global-header ramone-global-header"');
+    expect(rendered).toContain('class="atlas-header__inner"');
+    expect(rendered).toContain(".ramone-global-header .atlas-global-header__nav { gap: 24px; }");
+    expect(rendered).toContain(".ramone-global-header .atlas-global-header__link { padding-inline: 12px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }");
+    expect(rendered).not.toContain(".ramone-global-header .atlas-global-header__link { padding: 0; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }");
+    expect(rendered).not.toContain(".ramone-global-header .atlas-global-header__nav { gap: 0; }");
     expect(rendered).toContain('class="atlas-bottom-nav ramone-bottom-nav"');
     expect(rendered).toContain('class="topbar atlas-product-strip ramone-product-strip"');
     expect(rendered).toContain("data-estate-search-open");
@@ -279,7 +284,7 @@ describe("Ramone estate shell", () => {
     const manifest = JSON.parse(
       fs.readFileSync(`${bundleRoot}/manifest.json`, "utf8"),
     );
-    expect(RAMONE_INTERFACE_VERSION).toBe("0.2.0");
+    expect(RAMONE_INTERFACE_VERSION).toBe("0.5.0");
     expect(manifest.contract_version).toBe("2.0.0");
     expect(Object.keys(manifest.files).sort()).toEqual([
       "atlas-fonts.css",
@@ -291,6 +296,7 @@ describe("Ramone estate shell", () => {
       "fonts/ibm-plex-mono-500.woff2",
       "licenses/DM-Serif-Display-OFL.txt",
       "licenses/IBM-Plex-Mono-OFL.txt",
+      "semantics.json",
       "tokens.json",
     ]);
     for (const [name, record] of Object.entries(manifest.files)) {
@@ -300,9 +306,12 @@ describe("Ramone estate shell", () => {
     expect(RAMONE_INTERFACE_SHA256).toBe(
       manifest.files["atlas-interface-kit.css"].sha256,
     );
-    expect(RAMONE_INTERFACE_CSS).toContain("Atlas Interface Kit v0.2.0");
+    expect(RAMONE_INTERFACE_CSS).toContain("Atlas Interface Kit v0.5.0");
     expect(RAMONE_INTERFACE_CSS).toContain(".atlas-global-header");
     expect(RAMONE_INTERFACE_CSS).toContain(".atlas-bottom-nav");
+    expect(rendered).toContain("--atlas-shell-gutter:max(24px,calc((100% - 1280px)/2))");
+    expect(rendered).toContain("grid-template-columns: minmax(230px,1fr) auto minmax(230px,1fr)");
+    expect(rendered).toContain("width: min(calc(100% - 48px), 1280px)");
     expect(RAMONE_INTERFACE_CSS).not.toMatch(/https?:\/\//);
     expect(RAMONE_INTERFACE_FONT_CSS).toContain("@font-face");
     expect(RAMONE_INTERFACE_FONT_CSS).toContain("/assets/interface/fonts/");

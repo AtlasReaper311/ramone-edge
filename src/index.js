@@ -14,13 +14,15 @@
  *   GET  /status       cached awake/asleep probe for live indicators
  *   POST /ask          proxied Q&A, streams SSE back to the client
  *   POST /feedback/failure user-clicked draft eval capture
- *   *    /*            404
+ *   GET  /*            noindex HTML 404 for browser navigation, JSON otherwise
+ *   *    /*            JSON 404
  */
 
 import { handleAsk } from "./ask.js";
 import { handleFailureCapture } from "./failure-capture.js";
 import { handleStatus } from "./status.js";
-import { renderFrontend } from "./frontend.js";
+import { renderFrontend } from "./frontend-phase6.js";
+import { renderNotFoundFrontend } from "./not-found.js";
 import { handleBrowserIcon } from "./browser-icons.js";
 import { handleInterfaceAsset } from "./interface-assets.js";
 import { corsHeaders, handlePreflight } from "./cors.js";
@@ -47,6 +49,13 @@ const META = {
   ],
   source: "https://github.com/AtlasReaper311/ramone-edge",
 };
+
+function wantsHtml(request) {
+  if (request.method !== "GET") return false;
+  const accept = request.headers.get("accept") || "";
+  const mode = request.headers.get("sec-fetch-mode") || "";
+  return accept.toLowerCase().includes("text/html") || mode.toLowerCase() === "navigate";
+}
 
 async function routeRequest(request, env, ctx) {
     const url = new URL(request.url);
@@ -96,6 +105,18 @@ async function routeRequest(request, env, ctx) {
 
       if (request.method === "POST" && url.pathname === "/feedback/failure") {
         return handleFailureCapture(request, env, ctx);
+      }
+
+      if (wantsHtml(request)) {
+        return new Response(renderNotFoundFrontend(), {
+          status: 404,
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+            "cache-control": "no-store",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "no-referrer",
+          },
+        });
       }
 
       return json({ error: "not_found" }, 404, request, env);

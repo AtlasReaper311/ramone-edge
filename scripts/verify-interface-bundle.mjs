@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const version = "0.2.0";
+const version = "0.5.0";
 const bundle = path.join(root, "assets", "interface", `v${version}`);
 const manifest = JSON.parse(
   fs.readFileSync(path.join(bundle, "manifest.json"), "utf8"),
@@ -18,6 +18,7 @@ const expectedFiles = new Set([
   "fonts/ibm-plex-mono-500.woff2",
   "licenses/DM-Serif-Display-OFL.txt",
   "licenses/IBM-Plex-Mono-OFL.txt",
+  "semantics.json",
   "tokens.json",
 ]);
 
@@ -39,7 +40,7 @@ requireValue(
   "unexpected interface contract version",
 );
 requireValue(
-  manifest.component_role_count === 25,
+  manifest.component_role_count === 30,
   "unexpected component role count",
 );
 requireValue(

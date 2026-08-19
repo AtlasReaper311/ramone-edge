@@ -1,6 +1,6 @@
 import { handleBrowserIcon } from "./browser-icons.js";
 import { handleInterfaceAsset } from "./interface-assets.js";
-import { renderFrontend } from "./frontend.js";
+import { renderFrontend } from "./frontend-phase6.js";
 import { secureResponse } from "./security.js";
 
 const SECURITY_HEADERS = {
