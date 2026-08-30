@@ -154,7 +154,7 @@ describe("Ramone estate shell", () => {
     expect(rendered).toContain("I cannot see");
     for (const privateDetail of [
       "RTX 5070",
-      "llama3.1:8b",
+      "qwen3.5-mtp",
       "Cloudflare Tunnel",
       "ramone-tunnel.atlas-systems.uk",
       "UPSTREAM_SECRET",
