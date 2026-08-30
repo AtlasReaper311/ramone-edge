@@ -30,7 +30,7 @@ browser ─▶ ramone.atlas-systems.uk ─▶ ramone-edge (this worker)
                                           │
                                 ┌─────────┴─────────┐
                                 ▼                   ▼
-                            ChromaDB             Ollama (llama3.1:8b)
+                            ChromaDB             llama.cpp (qwen3.5-mtp)
 ```
 
 ## Routes
