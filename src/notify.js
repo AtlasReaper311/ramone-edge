@@ -57,7 +57,6 @@ export async function notify(env, payload) {
 export function buildAskEvent({
   ipHash,
   promptChars,
-  promptText,
   latencyMs,
   status,
   reason,
@@ -83,7 +82,7 @@ export function buildAskEvent({
     fields: {
       ip_hash: ipHash,
       prompt_chars: promptChars,
-      prompt: promptText || undefined,
+      prompt_redacted: true,
       answer_chars: answerChars,
       latency_ms: latencyMs,
       sources_used: sources,
