@@ -15,6 +15,8 @@ describe("buildAskEvent", () => {
     expect(e.level).toBe("info");
     expect(e.title).toBe("ramone: answered");
     expect(e.fields.prompt_chars).toBe(42);
+    expect(e.fields.prompt_redacted).toBe(true);
+    expect(e.fields.prompt).toBeUndefined();
     expect(e.fields.answer_chars).toBe(512);
     expect(e.fields.sources_used).toBe(3);
     expect(e.fields.has_memory).toBe(false);
@@ -90,6 +92,22 @@ describe("buildAskEvent", () => {
     });
     const flat = JSON.stringify(e);
     expect(flat).not.toMatch(/\d+\.\d+\.\d+\.\d+/);
+  });
+
+  it("never includes raw prompt text in background notifications", () => {
+    const e = buildAskEvent({
+      ipHash: "abc123",
+      promptChars: 23,
+      promptText: "What private thing happened?",
+      latencyMs: 1,
+      status: 200,
+      reason: null,
+      sources: 1,
+      answerChars: 10,
+    });
+
+    expect(e.fields.prompt_redacted).toBe(true);
+    expect(JSON.stringify(e)).not.toContain("What private thing happened?");
   });
 });
 

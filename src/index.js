@@ -4,7 +4,7 @@
  * Public Worker that fronts the Ramone local AI inference stack running on
  * SPECULAR-CORE through a Cloudflare Tunnel. The Worker is the only
  * publicly addressable component; it serves the standalone interface on
- * GET requests, validates Turnstile, enforces rate limits, proxies
+ * GET requests, enforces rate limits, proxies
  * question/answer traffic into the tunnel, and reports every interaction
  * to atlas-notify.
  *
@@ -37,13 +37,13 @@ Canonical: https://ramone.atlas-systems.uk/.well-known/security.txt
 
 const META = {
   name: "ramone-edge",
-  description: "Public edge for the Ramone local-AI tunnel with Turnstile, rate limits, and SSE responses",
+  description: "Public edge for the Ramone local-AI tunnel with rate limits and SSE responses",
   version: "1.0.0",
   endpoints: [
     { method: "GET", path: "/", description: "Standalone Ramone interface" },
     { method: "GET", path: "/.well-known/security.txt", description: "Security contact" },
     { method: "GET", path: "/status", description: "Cached awake/asleep probe for live indicators" },
-    { method: "POST", path: "/ask", description: "Turnstile-protected Q&A proxy streaming SSE from the local stack" },
+    { method: "POST", path: "/ask", description: "Rate-limited Q&A proxy streaming SSE from the local stack" },
     { method: "POST", path: "/feedback/failure", description: "User-clicked draft eval capture for a completed Ramone answer" },
     { method: "GET", path: "/_meta", description: "This document" },
   ],
