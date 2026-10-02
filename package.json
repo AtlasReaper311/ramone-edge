@@ -19,7 +19,7 @@
     "eslint": "^10.10.0",
     "globals": "^17.12.0",
     "vitest": "^4.1.11",
-    "wrangler": "^4.131.0"
+    "wrangler": "^4.147.0"
   },
   "overrides": {
     "brace-expansion": "5.0.9"
