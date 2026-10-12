@@ -22,7 +22,7 @@
     "wrangler": "^4.149.0"
   },
   "overrides": {
-    "brace-expansion": "5.0.9"
+    "brace-expansion": "5.0.12"
   },
   "engines": {
     "node": ">=22"
